@@ -19,6 +19,7 @@ test('J03 conserva el cero, UTC, calidad y unidades al preparar series inmutable
     [1712345678, 0, 'ok'], [1712345680, 0.00004, 'degraded'],
   ])
   assert.match(radiation.points[0].timeFormatted, / UTC$/)
+  assert.notEqual(radiation.points[0].timeFormatted, radiation.points[1].timeFormatted)
   assert.equal(activity.unit, null)
   assert.equal(activity.points.length, 1)
   assert.equal(activity.points[0].quality, 'sensor_fault')

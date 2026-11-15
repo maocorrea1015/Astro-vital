@@ -36,6 +36,10 @@ export function toMeasurementIndicator(reading: Reading): MeasurementIndicatorPr
   }
 }
 
+const historicalTime = new Intl.DateTimeFormat('es-CO', {
+  dateStyle: 'medium', timeStyle: 'medium', timeZone: 'UTC',
+})
+
 export function toMeasurementTrends(readings: readonly Reading[]): MeasurementTrendProps[] {
   const trends = new Map<Reading['variable'], MeasurementTrendProps>()
   for (const reading of readings) {
@@ -46,7 +50,7 @@ export function toMeasurementTrends(readings: readonly Reading[]): MeasurementTr
     }
     trend.points.push({
       timestamp: reading.measuredAtMs / 1000,
-      timeFormatted: displayTime(reading.measuredAtMs),
+      timeFormatted: historicalTime.format(reading.measuredAtMs) + ' UTC',
       value: reading.value,
       quality: reading.quality,
     })

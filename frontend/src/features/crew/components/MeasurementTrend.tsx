@@ -327,7 +327,7 @@ export function MeasurementTrend({
   // Formateo para marcas temporales de eje asegurando coherencia con la tabla de datos
   const formatAxisTime = (ts: number): string => {
     const date = new Date(ts * 1000)
-    return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })
+    return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' })
   }
 
   const getPointTimeLabel = (pt: TelemetryTrendPoint): string => {
