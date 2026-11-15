@@ -52,14 +52,21 @@ export function readMonitoringId(route: string): string | null {
   return isAstronautId(id) ? id : null
 }
 
-export function assistancePathFor(id: string) {
-  return `${assistancePath}/${encodeURIComponent(id)}`
+export function assistancePathFor(id: string, alertId?: number) {
+  return `${assistancePath}/${encodeURIComponent(id)}${alertId === undefined ? '' : '?aviso=' + alertId}`
 }
 
 export function readAssistanceId(route: string): string | null {
   if (!route.startsWith(`${assistancePath}/`)) return null
-  const id = route.slice(assistancePath.length + 1)
+  const id = route.slice(assistancePath.length + 1).split('?')[0]
   return isAstronautId(id) ? id : null
+}
+
+export function readAssistanceAlertId(route: string) {
+  if (!readAssistanceId(route)) return null
+  const value = new URLSearchParams(route.split('?')[1]).get('aviso')
+  const id = Number(value)
+  return value && /^\d+$/.test(value) && Number.isSafeInteger(id) && id > 0 ? id : null
 }
 
 export function hrefFor(path: string) {

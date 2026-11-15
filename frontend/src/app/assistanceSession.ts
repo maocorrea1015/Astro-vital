@@ -7,12 +7,14 @@ export interface AssistanceQuestion {
 
 export interface AssistanceSession {
   astronautId: string
+  startedAtMs?: number
+  observationAlertId?: number
   step: number
   answers: ReadonlyMap<string, readonly string[]>
 }
 
-export function startAssistanceSession(astronautId: string): AssistanceSession {
-  return { astronautId, step: 0, answers: new Map() }
+export function startAssistanceSession(astronautId: string, startedAtMs?: number): AssistanceSession {
+  return { astronautId, step: 0, answers: new Map(), ...(startedAtMs === undefined ? {} : { startedAtMs }) }
 }
 
 export function questionProgress(session: AssistanceSession, questions: readonly AssistanceQuestion[]) {

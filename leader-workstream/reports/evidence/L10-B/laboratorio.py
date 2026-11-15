@@ -23,9 +23,9 @@ def emit(data):
     print(json.dumps(data, ensure_ascii=True), flush=True)
 
 
-def run_lab(repo, bundle):
+def run_lab(repo, bundle, port=5000):
     host = "127.0.0.1"
-    base = f"http://{host}:5000"
+    base = f"http://{host}:{port}"
     with tempfile.TemporaryDirectory(prefix="astro-l10b-flask-") as directory:
         isolated = Path(directory).resolve(strict=True)
         tracked = subprocess.check_output(
@@ -96,8 +96,8 @@ def run_lab(repo, bundle):
 
         def start():
             nonlocal server, thread
-            server = make_server(host, 5000, app, threaded=True)
-            if server.socket.getsockname()[:2] != (host, 5000):
+            server = make_server(host, port, app, threaded=True)
+            if server.socket.getsockname()[:2] != (host, port):
                 server.server_close()
                 raise RuntimeError("Socket no limitado a loopback")
             thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -114,6 +114,53 @@ def run_lab(repo, bundle):
                 server.server_close()
                 thread.join()
                 server = None
+
+
+        def transmit(astronaut_id, mode, count):
+            posts.clear()
+            rules.clear()
+            old_argv = sys.argv
+            sys.argv = ["simulator.py", "--host", base, "--api-key", token,
+                        "--astronaut-id", astronaut_id, "--mode", mode,
+                        "--interval", "2", "--count", str(count)]
+            try:
+                simulator.main()
+            finally:
+                sys.argv = old_argv
+
+        def prepare_crew():
+            profiles = [
+                ("astro-01", "normal", None),
+                ("astro-02", "tachycardia", "heart_rate"),
+                ("astro-03", "hypoxia", "spo2"),
+                ("astro-04", "radiation", "radiation_cpm"),
+                ("astro-05", "sensor_fault", None),
+            ]
+            results = []
+            for number, (astronaut_id, mode, expected) in enumerate(profiles, start=1):
+                transmit(astronaut_id, mode, 2)
+                if len(posts) != 2 or any(post["status"] != 200 or post["reply"]["invalidas"] != 0
+                                          or post["reply"]["duplicadas"] != 0 for post in posts):
+                    raise RuntimeError(f"Ingesta incompleta para {astronaut_id}")
+                with sqlite3.connect(db_path) as db:
+                    db.execute("UPDATE nodos SET nombre = ? WHERE astronaut_id = ?",
+                               (f"Astronauta sintético {number:02}", astronaut_id))
+                payload = requests.get(base + f"/api/astronauts/{astronaut_id}/status", timeout=3)
+                payload.raise_for_status()
+                status = payload.json()
+                history = requests.get(base + f"/api/astronauts/{astronaut_id}/readings", timeout=3)
+                history.raise_for_status()
+                records = history.json()
+                active = status["alertas_activas"]
+                if len(records) < 10 or any(row["astronaut_id"] != astronaut_id for row in records):
+                    raise RuntimeError(f"Histórico incongruente para {astronaut_id}")
+                if expected is None and active or expected and not any(item["variable"] == expected for item in active):
+                    raise RuntimeError(f"Resultado de reglas inesperado para {astronaut_id}: {mode}")
+                results.append({"id": astronaut_id, "mode": mode, "readings": len(records),
+                                "qualities": sorted({row["calidad"] for row in records}),
+                                "alerts": [{"id": item["id"], "variable": item["variable"],
+                                            "severity": item["severidad"], "ts": item["ts"]} for item in active]})
+            return {"crew": results}
 
         # El secreto se crea y registra únicamente en SQLite temporal.
         # El argv de Python se reemplaza en memoria, sin poner el secreto en el comando del proceso.
@@ -152,19 +199,13 @@ def run_lab(repo, bundle):
                     emit({"archivos_bundle": len(assets),
                           "clave_efimera_en_bundle": any(token.encode() in p.read_bytes() for p in assets)})
                     continue
+                if action == "crew" and port_confirmed and server is not None:
+                    emit(prepare_crew())
+                    continue
                 if action not in ("normal", "tachycardia", "sensor_fault") or not port_confirmed or server is None:
                     raise RuntimeError("Escenario no admitido o Flask detenido")
-                posts.clear()
-                rules.clear()
                 time.sleep(1.05)
-                old_argv = sys.argv
-                sys.argv = ["simulator.py", "--host", base, "--api-key", token,
-                            "--astronaut-id", "astro-01", "--mode", action,
-                            "--interval", "2", "--count", "2" if action == "normal" else "1"]
-                try:
-                    simulator.main()
-                finally:
-                    sys.argv = old_argv
+                transmit("astro-01", action, 2 if action == "normal" else 1)
                 status = requests.get(base + "/api/astronauts/astro-01/status", timeout=3)
                 history = requests.get(base + "/api/astronauts/astro-01/readings", timeout=3)
                 if status.status_code != 200 or history.status_code != 200:
@@ -181,11 +222,13 @@ def run_lab(repo, bundle):
                 })
         finally:
             stop()
+            logging.shutdown()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("repo", type=Path)
     parser.add_argument("--bundle", action="append", type=Path, default=[])
+    parser.add_argument("--port", type=int, default=5000)
     args = parser.parse_args()
-    run_lab(args.repo.resolve(strict=True), args.bundle)
+    run_lab(args.repo.resolve(strict=True), args.bundle, args.port)

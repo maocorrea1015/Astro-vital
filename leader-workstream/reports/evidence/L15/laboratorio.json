@@ -1,0 +1,13 @@
+{
+  "perfilNormalLecturas": 10,
+  "perfilAnomaloLecturasAcumuladas": 15,
+  "alertasActivas": 2,
+  "frecuenciaCardiacaBpm": 141.4,
+  "tsUnix": 1794742727,
+  "getNavegador": 26,
+  "postNavegador": 0,
+  "apiKeysNavegador": 0,
+  "resumenA01": true,
+  "finalizacion": true,
+  "puertoFlask": 15000
+}

@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 
+import { observationDemoEnabled } from './observationEnvironment'
 import { PwaControls } from '../pwa/PwaControls'
 import { useBrowserOnline } from '../pwa/useBrowserOnline'
 import { alertsPath, assistancePath, assistancePathFor, astronautDetailPath, hrefFor, monitoringPath, pageHeadingId, readAlertsId, readAssistanceId, readDetailId, readMonitoringId, sections } from './navigation'
@@ -95,6 +96,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
           <Typography component="span" sx={{ fontSize: '1.25rem', fontWeight: 750 }}>
             Astro-vital
           </Typography>
+          {observationDemoEnabled && <Typography variant="caption" color="primary.main">Laboratorio local · utiliza solo datos sintéticos</Typography>}
           <PwaControls />
         </Container>
       </Box>
