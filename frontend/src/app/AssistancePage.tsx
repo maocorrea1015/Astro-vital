@@ -6,9 +6,10 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { AssistanceQuestionnaire } from './AssistanceQuestionnaire'
 import { QueryFeedback } from './CrewPage'
 import { approvedAssistanceQuestions } from './assistanceContent'
-import { questionProgress, startAssistanceSession, type AssistanceSession } from './assistanceSession'
+import { startAssistanceSession, type AssistanceSession } from './assistanceSession'
 import { useCrewQuery, type CrewApi } from './crewQuery'
 import { detailPathFor, hrefFor } from './navigation'
 
@@ -20,12 +21,12 @@ export function AssistancePage({ api, initialId }: { api: CrewApi; initialId: st
   const confirmation = useRef<HTMLHeadingElement>(null)
   const selected = result.kind === 'ready' ? result.data.find(({ id }) => id === selectedId) : undefined
   const confirmed = Boolean(selected && session?.astronautId === selected.id)
-  const progress = session === null ? null : questionProgress(session, approvedAssistanceQuestions)
+  const hasQuestions = approvedAssistanceQuestions.length > 0
   const returnId = selected?.id ?? (result.kind !== 'ready' ? initialId : null)
 
   useEffect(() => {
-    if (confirmed) confirmation.current?.focus()
-  }, [confirmed])
+    if (confirmed && !hasQuestions) confirmation.current?.focus()
+  }, [confirmed, hasQuestions])
 
   return (
     <Stack spacing={3} sx={{ maxWidth: '66ch', overflowWrap: 'anywhere' }}>
@@ -43,6 +44,7 @@ export function AssistancePage({ api, initialId }: { api: CrewApi; initialId: st
               component="select"
               id="assistance-astronaut"
               value={selected?.id ?? ''}
+              disabled={confirmed}
               onChange={(event) => {
                 setSelectedId(event.currentTarget.value)
                 setSession(null)
@@ -66,7 +68,7 @@ export function AssistancePage({ api, initialId }: { api: CrewApi; initialId: st
             disabled={!selected || confirmed}
             onClick={() => { if (selected) setSession(startAssistanceSession(selected.id)) }}
           >
-            Confirmar astronauta
+            {hasQuestions ? 'Iniciar sesión' : 'Confirmar astronauta'}
           </Button>
         </Stack>
       )}
@@ -82,8 +84,29 @@ export function AssistancePage({ api, initialId }: { api: CrewApi; initialId: st
         >
           {confirmed ? `Astronauta confirmado: ${selected?.name || selected?.id}` : 'Disponibilidad de asistencia'}
         </Typography>
-        {progress && <Typography>Paso {progress.current} de {progress.total}</Typography>}
-        <Typography color="text.secondary">El cuestionario de asistencia está pendiente de validación médica</Typography>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          {hasQuestions ? (
+            confirmed && session ? (
+              <AssistanceQuestionnaire session={session} questions={approvedAssistanceQuestions} onChange={setSession} />
+            ) : (
+              <Typography color="text.secondary">Selecciona un astronauta para iniciar.</Typography>
+            )
+          ) : (
+            <Typography color="text.secondary">El cuestionario de asistencia está pendiente de validación médica</Typography>
+          )}
+          {confirmed && (
+            <Box>
+              <Button
+                onClick={() => {
+                  setSession(null)
+                  confirmation.current?.focus()
+                }}
+              >
+                Cancelar sesión
+              </Button>
+            </Box>
+          )}
+        </Stack>
       </Paper>
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
