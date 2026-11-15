@@ -45,6 +45,7 @@ export function moveQuestion(
 ): AssistanceSession {
   const question = questions[session.step]
   const step = session.step + direction
-  if (!question || !questions[step] || (direction === 1 && !session.answers.has(question.id))) return session
+  if (direction === -1 && !questions[step]) return session
+  if (direction === 1 && (!question || !session.answers.has(question.id))) return session
   return { ...session, step }
 }

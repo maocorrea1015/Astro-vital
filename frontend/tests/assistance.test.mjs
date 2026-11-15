@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { approvedAssistanceQuestions } from '../src/app/assistanceContent.ts'
+import { approvedAssistanceQuestions, getApprovedAssistanceQuestions } from '../src/app/assistanceContent.ts'
 import { answerQuestion, moveQuestion, questionProgress, startAssistanceSession } from '../src/app/assistanceSession.ts'
 
 // Non-clinical structural fixtures. These definitions are never included in the app.
@@ -33,4 +33,36 @@ test('admite opción única y múltiple, progreso, regreso y corrección local',
   assert.deepEqual(corrected.answers.get('multiple'), ['a', 'b'])
   assert.equal(initial.answers.size, 0)
   assert.equal(answerQuestion(corrected, questions, []).answers.has('single'), false)
+})
+
+test('solo incorpora la versión aprobada y con fuentes trazables', () => {
+  const approved = {
+    status: 'approved',
+    version: 'prueba-1',
+    review: { reviewer: 'Prueba', reviewedOn: '2026-11-15', reference: 'Prueba', audience: 'Prueba', scope: 'Prueba' },
+    sources: [{ id: 'fixture', organization: 'Prueba', title: 'Prueba', url: 'https://example.invalid', version: '1', accessedOn: '2026-11-15', section: 'Prueba' }],
+    questions: questions.map((question) => ({ ...question, sourceIds: ['fixture'] })),
+  }
+  assert.equal(getApprovedAssistanceQuestions(approved), approved.questions)
+  assert.deepEqual(getApprovedAssistanceQuestions({ ...approved, status: 'pending' }), [])
+  assert.deepEqual(getApprovedAssistanceQuestions({ ...approved, review: { ...approved.review, reference: '' } }), [])
+  assert.deepEqual(getApprovedAssistanceQuestions({ ...approved, sources: [] }), [])
+  assert.deepEqual(getApprovedAssistanceQuestions({ ...approved, questions: [{ ...approved.questions[0], sourceIds: ['ausente'] }] }), [])
+  assert.deepEqual(getApprovedAssistanceQuestions({ ...approved, questions: [approved.questions[0], approved.questions[0]] }), [])
+})
+
+test('finaliza solo con respuesta, vuelve para corregir y una sesión nueva empieza vacía', () => {
+  const initial = startAssistanceSession('astro-01')
+  const first = answerQuestion(initial, questions, ['a'])
+  const last = moveQuestion(first, questions, 1)
+  assert.equal(moveQuestion(last, questions, 1), last)
+  const answered = answerQuestion(last, questions, ['a', 'b'])
+  const complete = moveQuestion(answered, questions, 1)
+  assert.equal(complete.astronautId, initial.astronautId)
+  assert.equal(questionProgress(complete, questions), null)
+  assert.equal(moveQuestion(complete, questions, 1), complete)
+  const back = moveQuestion(complete, questions, -1)
+  assert.deepEqual(back, answered)
+  assert.deepEqual(answerQuestion(back, questions, ['b']).answers.get('multiple'), ['b'])
+  assert.deepEqual(startAssistanceSession(complete.astronautId), initial)
 })
