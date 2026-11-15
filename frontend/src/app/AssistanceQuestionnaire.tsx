@@ -7,6 +7,7 @@ import RadioGroup from '@mui/material/RadioGroup'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 import { answerQuestion, moveQuestion, questionProgress, type AssistanceQuestion, type AssistanceSession } from './assistanceSession'
 
@@ -14,9 +15,11 @@ interface AssistanceQuestionnaireProps {
   session: AssistanceSession
   questions: readonly AssistanceQuestion[]
   onChange: (session: AssistanceSession) => void
+  promptTarget: HTMLElement
+  actionTarget: HTMLElement
 }
 
-export function AssistanceQuestionnaire({ session, questions, onChange }: AssistanceQuestionnaireProps) {
+export function AssistanceQuestionnaire({ session, questions, onChange, promptTarget, actionTarget }: AssistanceQuestionnaireProps) {
   const heading = useRef<HTMLHeadingElement>(null)
   const question = questions[session.step]
   const progress = questionProgress(session, questions)
@@ -31,25 +34,28 @@ export function AssistanceQuestionnaire({ session, questions, onChange }: Assist
   if (!question || !progress) {
     return (
       <Stack spacing={2} sx={{ alignItems: 'flex-start' }}>
-        <Typography component="h3" variant="h6" ref={heading} tabIndex={-1} sx={focusOutline}>
-          Cuestionario completado
-        </Typography>
+        {createPortal(<Typography component="h3" variant="h6" ref={heading} tabIndex={-1} sx={focusOutline}>Cuestionario completado</Typography>, promptTarget)}
         <Typography>Las respuestas permanecen en esta sesión.</Typography>
-        <Button onClick={() => move(-1)}>Volver a las preguntas</Button>
+        {createPortal(<Button className="module-action" onClick={() => move(-1)}>Volver a las preguntas</Button>, actionTarget)}
       </Stack>
     )
   }
 
   const answer = session.answers.get(question.id) ?? []
   const changeAnswer = (optionIds: readonly string[]) => onChange(answerQuestion(session, questions, optionIds))
-  const optionStyle = { ml: 0, mr: 0, minHeight: 44, '& .MuiFormControlLabel-label': { minWidth: 0, overflowWrap: 'anywhere' } }
+  const optionStyle = { m: 0, p: 1, minHeight: 58, borderRadius: 2, border: '1px solid #2b4c5c', bgcolor: '#172c3b', '&:has(input:checked)': { borderColor: '#8bf4df', bgcolor: '#1b4148' }, '& .MuiFormControlLabel-label': { minWidth: 0, overflowWrap: 'anywhere' } }
 
   return (
     <Stack spacing={2}>
-      <Typography color="text.secondary">Paso {progress.current} de {progress.total}</Typography>
-      <Typography id="assistance-question" component="h3" variant="h6" ref={heading} tabIndex={-1} sx={focusOutline}>
-        {question.prompt}
-      </Typography>
+      {createPortal(
+        <>
+          <Typography color="text.secondary">Paso {progress.current} de {progress.total}</Typography>
+          <progress aria-label="Progreso del cuestionario" value={progress.current} max={progress.total} />
+          <Typography id="assistance-question" component="h3" variant="h6" ref={heading} tabIndex={-1} sx={focusOutline}>
+            {question.prompt}
+          </Typography>
+        </>, promptTarget,
+      )}
       <Typography color="text.secondary" id="assistance-selection-help">
         {question.kind === 'single' ? 'Selecciona una opción.' : 'Selecciona una o más opciones.'}
       </Typography>
@@ -57,6 +63,7 @@ export function AssistanceQuestionnaire({ session, questions, onChange }: Assist
         <RadioGroup
           aria-labelledby="assistance-question"
           aria-describedby="assistance-selection-help"
+          sx={{ gap: 1 }}
           name="assistance-answer"
           value={answer[0] ?? ''}
           onChange={(_event, value) => changeAnswer([value])}
@@ -67,7 +74,7 @@ export function AssistanceQuestionnaire({ session, questions, onChange }: Assist
         </RadioGroup>
       ) : (
         <Box role="group" aria-labelledby="assistance-question" aria-describedby="assistance-selection-help">
-          <Stack>
+          <Stack spacing={1}>
             {question.options.map(({ id, label }) => (
               <FormControlLabel
                 key={id}
@@ -84,12 +91,12 @@ export function AssistanceQuestionnaire({ session, questions, onChange }: Assist
           </Stack>
         </Box>
       )}
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-        {session.step > 0 && <Button onClick={() => move(-1)}>Anterior</Button>}
-        <Button variant="contained" disabled={answer.length === 0} onClick={() => move(1)}>
+      {createPortal(<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+        {session.step > 0 && <Button className="module-action" onClick={() => move(-1)}>Anterior</Button>}
+        <Button className="module-action primary" disabled={answer.length === 0} onClick={() => move(1)}>
           {progress.current === progress.total ? 'Finalizar cuestionario' : 'Siguiente'}
         </Button>
-      </Stack>
+      </Stack>, actionTarget)}
     </Stack>
   )
 }

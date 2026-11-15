@@ -7,20 +7,19 @@ import type { ReactNode } from 'react'
 
 import { PwaControls } from '../pwa/PwaControls'
 import { useBrowserOnline } from '../pwa/useBrowserOnline'
-import { alertsPath, assistancePath, assistancePathFor, astronautDetailPath, hrefFor, monitoringPath, pageHeadingId, readAssistanceId, readDetailId, readMonitoringId, sections } from './navigation'
+import { alertsPath, assistancePath, assistancePathFor, astronautDetailPath, hrefFor, monitoringPath, pageHeadingId, readAlertsId, readAssistanceId, readDetailId, readMonitoringId, sections } from './navigation'
 
 interface AppShellProps {
   route: string
   title: string
   children: ReactNode
-  renderHeading?: (heading: ReactNode) => ReactNode
 }
 
-export function AppShell({ route, title, children, renderHeading }: AppShellProps) {
+export function AppShell({ route, title, children }: AppShellProps) {
   const browserOnline = useBrowserOnline()
   const heading = useRef<HTMLHeadingElement>(null)
   const home = route === '/'
-  const focusRoute = readMonitoringId(route) === null ? route : monitoringPath
+  const focusRoute = readMonitoringId(route) !== null ? monitoringPath : readAlertsId(route) !== null ? alertsPath : route
   const previousRoute = useRef(focusRoute)
   const previousOnline = useRef(browserOnline)
 
@@ -36,18 +35,18 @@ export function AppShell({ route, title, children, renderHeading }: AppShellProp
   const activeSection = route === astronautDetailPath || detailId !== null
     ? '/tripulacion'
     : assistanceId !== null ? assistancePath : focusRoute
-  const contextualId = detailId ?? readMonitoringId(route) ?? assistanceId
+  const contextualId = detailId ?? readMonitoringId(route) ?? readAlertsId(route) ?? assistanceId
   const contextualAssistancePath = contextualId ? assistancePathFor(contextualId) : assistancePath
 
   const needsData = activeSection === '/tripulacion' || activeSection === monitoringPath || activeSection === assistancePath || activeSection === alertsPath
 
   useEffect(() => {
-    if (previousOnline.current && !browserOnline && needsData && document.activeElement === document.body) {
+    if (previousOnline.current && !browserOnline && (needsData || home) && document.activeElement === document.body) {
       // Unmounting a data view can remove the focused control.
       heading.current?.focus()
     }
     previousOnline.current = browserOnline
-  }, [browserOnline, needsData])
+  }, [browserOnline, home, needsData])
 
   const pageTitle = (
     <Typography
@@ -57,8 +56,8 @@ export function AppShell({ route, title, children, renderHeading }: AppShellProp
       ref={heading}
       tabIndex={-1}
       sx={{
-        fontSize: home ? { xs: '2.15rem', sm: '3.25rem', md: '4rem' } : { xs: '2rem', sm: '3rem' },
-          letterSpacing: home ? '-0.04em' : undefined,
+        fontSize: home ? { xs: '1.65rem', sm: '2rem', md: '2.4rem' } : { xs: '1.8rem', sm: '2.4rem' },
+        letterSpacing: home ? '-0.04em' : undefined,
         overflowWrap: 'anywhere',
         mb: 2,
         '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
@@ -90,8 +89,8 @@ export function AppShell({ route, title, children, renderHeading }: AppShellProp
       </Link>
       <Box component="header" sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Container
-          maxWidth="lg"
-          sx={{ py: { xs: 2, sm: 3 }, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}
+          maxWidth={false}
+          sx={{ maxWidth: 1440, py: 1.25, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}
         >
           <Typography component="span" sx={{ fontSize: '1.25rem', fontWeight: 750 }}>
             Astro-vital
@@ -100,12 +99,13 @@ export function AppShell({ route, title, children, renderHeading }: AppShellProp
         </Container>
       </Box>
       <Container
-        maxWidth="lg"
+        maxWidth={false}
         sx={{
+          maxWidth: 1440,
           display: 'grid',
-          gridTemplateColumns: home ? 'minmax(0, 1fr)' : { xs: 'minmax(0, 1fr)', md: '13rem minmax(0, 1fr)' },
-          gap: home ? { xs: 2, md: 3 } : { xs: 3, md: 5 },
-          py: home ? { xs: 2, md: 3 } : { xs: 2, md: 5 },
+          gridTemplateColumns: 'minmax(0, 1fr)',
+          gap: 1,
+          py: 1,
         }}
       >
         <Box component="nav" aria-label="Navegación principal">
@@ -113,9 +113,7 @@ export function AppShell({ route, title, children, renderHeading }: AppShellProp
             component="ul"
             sx={{
               display: 'grid',
-              gridTemplateColumns: home
-                ? { xs: 'repeat(3, minmax(0, 1fr))', sm: 'repeat(5, max-content)' }
-                : { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(5, minmax(0, 1fr))', md: '1fr' },
+              gridTemplateColumns: { xs: 'repeat(3, minmax(0, 1fr))', sm: 'repeat(5, max-content)' },
               gap: 1,
               m: 0,
               p: 0,
@@ -135,13 +133,13 @@ export function AppShell({ route, title, children, renderHeading }: AppShellProp
                       display: 'flex',
                       alignItems: 'center',
                       minHeight: 44,
-                      px: { xs: home ? 0.75 : 1.5, sm: 2 },
+                      px: { xs: 0.75, sm: 2 },
                       py: 1,
                       borderRadius: 1,
                       bgcolor: active ? 'background.paper' : 'transparent',
                       fontWeight: active ? 750 : 500,
                       overflowWrap: 'anywhere',
-                      fontSize: home ? { xs: '0.875rem', sm: '1rem' } : undefined,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
                       '&:hover': { textDecoration: 'underline' },
                       '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
                     }}
@@ -154,14 +152,14 @@ export function AppShell({ route, title, children, renderHeading }: AppShellProp
           </Box>
         </Box>
         <Box component="main" id="contenido" aria-labelledby={pageHeadingId}>
-          {renderHeading ? renderHeading(pageTitle) : pageTitle}
+          {pageTitle}
           {!browserOnline && (
             <Typography role="status" sx={{ mb: 2 }} color="warning.main">
               El navegador reporta que está sin conexión.
             </Typography>
           )}
           {!browserOnline && needsData ? (
-            <Typography>La navegación sigue disponible. Vuelve a conectarte para consultar los datos.</Typography>
+            <div className="module-workspace"><section className="module-panel"><div className="module-empty"><strong>Datos de misión no disponibles</strong><p>La navegación sigue disponible. Vuelve a conectarte para consultar los datos.</p><Link href={hrefFor('/')}>Volver al centro de control</Link></div></section></div>
           ) : children}
         </Box>
       </Container>
