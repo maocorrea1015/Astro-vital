@@ -1,0 +1,232 @@
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Chip from '@mui/material/Chip'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
+
+export type TelemetryVariable =
+  | 'heart_rate'
+  | 'spo2'
+  | 'temperature'
+  | 'radiation_cpm'
+  | 'activity'
+  | string
+
+export type SensorQuality = 'ok' | 'degraded' | 'sensor_fault' | 'unknown'
+
+export interface MeasurementIndicatorProps {
+  /** Variable monitoreada (clave estándar del contrato o extensible) */
+  variable: TelemetryVariable
+  /** Etiqueta descriptiva para visualización (ej. 'Frecuencia cardíaca') */
+  variableLabel?: string | null
+  /**
+   * Valor numérico medido.
+   * IMPORTANTE: El valor 0 es numéricamente válido y no representa ausencia.
+   */
+  value?: number | null
+  /** Unidad física confirmada (ej. 'bpm', '%', '°C', 'CPM'). Omitir si no está confirmada */
+  unit?: string | null
+  /** Marca de tiempo legible de la muestra */
+  timeFormatted?: string | null
+  /** Estado de calidad del transductor/sensor */
+  quality?: SensorQuality
+  /** Bandera que indica si la muestra excede el límite de frescura operativa */
+  isStale?: boolean
+}
+
+const DEFAULT_VARIABLE_LABELS: Record<string, string> = {
+  heart_rate: 'Frecuencia cardíaca',
+  spo2: 'Saturación de oxígeno (SpO₂)',
+  temperature: 'Temperatura corporal',
+  radiation_cpm: 'Tasa de radiación',
+  activity: 'Nivel de actividad',
+}
+
+const QUALITY_CONFIG: Record<
+  SensorQuality,
+  { label: string; color: 'success' | 'warning' | 'error' | 'default'; description: string }
+> = {
+  ok: {
+    label: 'Calidad nominal',
+    color: 'success',
+    description: 'Sensor operando dentro de parámetros esperados',
+  },
+  degraded: {
+    label: 'Calidad degradada',
+    color: 'warning',
+    description: 'Señal con ruido o precisión disminuida',
+  },
+  sensor_fault: {
+    label: 'Fallo de sensor',
+    color: 'error',
+    description: 'Transductor averiado; muestra no válida para evaluación',
+  },
+  unknown: {
+    label: 'Calidad no evaluada',
+    color: 'default',
+    description: 'Estado de calidad no informado por el origen',
+  },
+}
+
+export function MeasurementIndicator({
+  variable,
+  variableLabel,
+  value,
+  unit,
+  timeFormatted,
+  quality = 'unknown',
+  isStale = false,
+}: MeasurementIndicatorProps) {
+  const displayLabel =
+    variableLabel?.trim() || DEFAULT_VARIABLE_LABELS[variable] || variable
+
+  const hasValue = typeof value === 'number' && Number.isFinite(value)
+  const isZero = hasValue && value === 0
+  const isFault = quality === 'sensor_fault'
+  const qualityCfg = QUALITY_CONFIG[quality] ?? QUALITY_CONFIG.unknown
+
+  // Formato seguro del valor para presentación
+  let formattedValue: string
+  if (hasValue) {
+    // Si tiene decimales no triviales, mostrar hasta 1 decimal; si no, entero
+    formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(1)
+  } else {
+    formattedValue = 'Sin datos'
+  }
+
+  return (
+    <Card
+      variant="outlined"
+      sx={{
+        backgroundColor: 'background.paper',
+        borderRadius: 2,
+        borderInlineStartWidth: 4,
+        borderInlineStartColor: isFault
+          ? 'error.main'
+          : isStale
+            ? 'warning.main'
+            : 'primary.main',
+      }}
+    >
+      <CardContent sx={{ p: { xs: 2, sm: 2.25 } }}>
+        <Stack spacing={1.5}>
+          {/* Cabecera del Indicador */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+            <Box>
+              <Typography
+                variant="subtitle2"
+                component="h4"
+                sx={{
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  lineHeight: 1.25,
+                  wordBreak: 'break-word',
+                }}
+              >
+                {displayLabel}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Clave: {variable}
+              </Typography>
+            </Box>
+
+            {/* Badges de Calidad y Obsolescencia */}
+            <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ justifyContent: 'flex-end' }}>
+              {isStale && (
+                <Chip
+                  size="small"
+                  color="warning"
+                  variant="outlined"
+                  label="Lectura obsoleta"
+                  sx={{ fontWeight: 600, fontSize: '0.75rem' }}
+                />
+              )}
+              {quality !== 'ok' && (
+                <Chip
+                  size="small"
+                  color={qualityCfg.color}
+                  label={qualityCfg.label}
+                  title={qualityCfg.description}
+                  sx={{ fontWeight: 600, fontSize: '0.75rem' }}
+                />
+              )}
+            </Stack>
+          </Box>
+
+          {/* Valor Numérico y Unidad */}
+          <Box sx={{ my: 0.5 }}>
+            {hasValue ? (
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexWrap: 'wrap' }}>
+                <Typography
+                  variant="h3"
+                  component="span"
+                  aria-label={
+                    isFault
+                      ? `Lectura no confiable por fallo de sensor: ${formattedValue}`
+                      : undefined
+                  }
+                  sx={{
+                    fontWeight: 750,
+                    lineHeight: 1,
+                    fontSize: { xs: '2rem', sm: '2.5rem' },
+                    color: isFault ? 'text.secondary' : 'text.primary',
+                    textDecoration: isFault ? 'line-through' : 'none',
+                    opacity: isFault ? 0.6 : 1,
+                  }}
+                >
+                  {formattedValue}
+                </Typography>
+                {unit && unit.trim().length > 0 && (
+                  <Typography
+                    variant="h6"
+                    component="span"
+                    color="text.secondary"
+                    sx={{ fontWeight: 500, fontSize: { xs: '1rem', sm: '1.2rem' } }}
+                  >
+                    {unit}
+                  </Typography>
+                )}
+                {isZero && (
+                  <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                    (valor exacto cero)
+                  </Typography>
+                )}
+              </Box>
+            ) : (
+              <Typography
+                variant="h5"
+                component="span"
+                color="text.secondary"
+                sx={{ fontStyle: 'italic', fontWeight: 500 }}
+              >
+                Sin datos disponibles
+              </Typography>
+            )}
+
+            {/* Advertencia especial si el transductor está averiado */}
+            {isFault && hasValue && (
+              <Typography
+                variant="caption"
+                color="error.main"
+                sx={{ display: 'block', mt: 0.5, fontWeight: 500 }}
+              >
+                Advertencia: Lectura no confiable por fallo detectado en el sensor.
+              </Typography>
+            )}
+          </Box>
+
+          {/* Información Temporal y Trazabilidad */}
+          <Box sx={{ pt: 0.5, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+              Hora de muestra:{' '}
+              <Box component="span" sx={{ color: 'text.primary' }}>
+                {timeFormatted?.trim() || 'Hora no registrada'}
+              </Box>
+            </Typography>
+          </Box>
+        </Stack>
+      </CardContent>
+    </Card>
+  )
+}
