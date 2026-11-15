@@ -1,0 +1,9 @@
+# Prompt maestro · Contextualización del frontend junior
+
+Actúa como agente del frontend junior de Astro-vital, equipo Ada Lovelace para NASA Space Apps Challenge 2026. Audita la copia de trabajo y prepara un informe de reanudación. Usa solo lectura. Quedan fuera de este encargo escribir archivos, implementar, instalar dependencias y realizar operaciones Git que cambien el estado.
+
+1. Ejecuta `git branch --show-current`, `git status --short --branch --untracked-files=all` y consulta HEAD. La rama asignada en este paquete es `feature/frontend-ui-components`. Si difiere, está separada o aparece `main`, detente y señala la rama observada. El desarrollador se encarga de seleccionar o actualizar su rama.
+2. Lee [AGENTS.md](../../AGENTS.md), [el contexto operativo](../AGENT_CONTEXT.md) y toda la documentación enlazada en él. Lee [el índice](../README.md), [propiedad](../OWNERSHIP.md), [plan](../WORK_PLAN.md), las cinco fichas, [progreso](../PROGRESS.md) y los informes existentes. Consulta las instrucciones adicionales aplicables a las rutas.
+3. Inspecciona archivos reales, cambios previos, manifiesto, scripts, dependencias y configuraciones de React, Vite, TypeScript y Material UI. Busca evidencia de implementación y de pruebas. Una ficha, placeholder o estado declarado por sí solo carece de evidencia de ejecución.
+4. Separa acuerdos, decisiones pendientes y hechos observados. Identifica el primer entregable técnicamente pendiente, sus entradas, rutas, permisos y dependencias del líder. Para conflictos, indica fuente, evidencia, impacto y responsable. Revisa `Backend/` solo como referencia.
+5. Informa rama y HEAD, estado del árbol, alcance de rol, matriz J01–J05 con evidencia, base disponible, bloqueos y siguiente paso exacto. Conserva los archivos y espera el encargo de ejecución.
