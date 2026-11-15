@@ -5,6 +5,8 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 
+import { PwaControls } from '../pwa/PwaControls'
+import { useBrowserOnline } from '../pwa/useBrowserOnline'
 import { astronautDetailPath, hrefFor, monitoringPath, readDetailId, readMonitoringId, sections } from './navigation'
 
 interface AppShellProps {
@@ -14,6 +16,7 @@ interface AppShellProps {
 }
 
 export function AppShell({ route, title, children }: AppShellProps) {
+  const browserOnline = useBrowserOnline()
   const heading = useRef<HTMLHeadingElement>(null)
   const focusRoute = readMonitoringId(route) === null ? route : monitoringPath
   const previousRoute = useRef(focusRoute)
@@ -26,6 +29,8 @@ export function AppShell({ route, title, children }: AppShellProps) {
   }, [focusRoute])
 
   const activeSection = route === astronautDetailPath || readDetailId(route) !== null ? '/tripulacion' : focusRoute
+
+  const needsData = activeSection === '/tripulacion' || activeSection === monitoringPath
 
   return (
     <Box sx={{ minHeight: '100svh' }}>
@@ -48,10 +53,14 @@ export function AppShell({ route, title, children }: AppShellProps) {
         Saltar al contenido
       </Link>
       <Box component="header" sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
-        <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 } }}>
+        <Container
+          maxWidth="lg"
+          sx={{ py: { xs: 2, sm: 3 }, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}
+        >
           <Typography component="span" sx={{ fontSize: '1.25rem', fontWeight: 750 }}>
             Astro-vital
           </Typography>
+          <PwaControls />
         </Container>
       </Box>
       <Container
@@ -119,7 +128,14 @@ export function AppShell({ route, title, children }: AppShellProps) {
           >
             {title}
           </Typography>
-          {children}
+          {!browserOnline && (
+            <Typography role="status" sx={{ mb: 2 }} color="warning.main">
+              El navegador reporta que está sin conexión.
+            </Typography>
+          )}
+          {!browserOnline && needsData ? (
+            <Typography>La navegación sigue disponible. Vuelve a conectarte para consultar los datos.</Typography>
+          ) : children}
         </Box>
       </Container>
     </Box>
