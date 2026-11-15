@@ -4,12 +4,13 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import { createAstronautApi } from '../services/api/astronauts'
+import { AssistancePage } from './AssistancePage'
 import { AstronautPage } from './AstronautPage'
 import { CrewPage } from './CrewPage'
 import type { CrewApi } from './crewQuery'
 import { AppShell } from './AppShell'
 import { TelemetryPanel } from './TelemetryPanel'
-import { astronautDetailPath, hrefFor, monitoringPath, readDetailId, readMonitoringId, useRoute } from './navigation'
+import { assistancePath, astronautDetailPath, hrefFor, monitoringPath, readAssistanceId, readDetailId, readMonitoringId, useRoute } from './navigation'
 
 const views: Record<string, { title: string; description: string } | undefined> = {
   '/': {
@@ -54,6 +55,15 @@ export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
     return (
       <AppShell route={route} title="Monitoreo">
         <TelemetryPanel api={crewApi} id={monitoringId} />
+      </AppShell>
+    )
+  }
+
+  const assistanceId = readAssistanceId(route)
+  if (route === assistancePath || assistanceId !== null) {
+    return (
+      <AppShell route={route} title="Asistencia">
+        <AssistancePage key={assistanceId ?? assistancePath} api={crewApi} initialId={assistanceId} />
       </AppShell>
     )
   }

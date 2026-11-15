@@ -4,6 +4,8 @@ import { isAstronautId } from '../services/api/validators'
 
 export const pageHeadingId = 'page-heading'
 
+export const assistancePath = '/asistencia'
+
 export const monitoringPath = '/monitoreo'
 
 export const sections = [
@@ -11,6 +13,7 @@ export const sections = [
   { path: '/tripulacion', label: 'Tripulación' },
   { path: monitoringPath, label: 'Monitoreo' },
   { path: '/alertas', label: 'Alertas' },
+  { path: assistancePath, label: 'Asistencia' },
 ] as const
 
 export const astronautDetailPath = '/tripulacion/detalle'
@@ -34,6 +37,16 @@ export function monitoringPathFor(id: string) {
 export function readMonitoringId(route: string): string | null {
   if (!route.startsWith(`${monitoringPath}/`)) return null
   const id = route.slice(monitoringPath.length + 1)
+  return isAstronautId(id) ? id : null
+}
+
+export function assistancePathFor(id: string) {
+  return `${assistancePath}/${encodeURIComponent(id)}`
+}
+
+export function readAssistanceId(route: string): string | null {
+  if (!route.startsWith(`${assistancePath}/`)) return null
+  const id = route.slice(assistancePath.length + 1)
   return isAstronautId(id) ? id : null
 }
 

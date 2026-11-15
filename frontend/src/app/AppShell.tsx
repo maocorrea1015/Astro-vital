@@ -7,7 +7,7 @@ import type { ReactNode } from 'react'
 
 import { PwaControls } from '../pwa/PwaControls'
 import { useBrowserOnline } from '../pwa/useBrowserOnline'
-import { astronautDetailPath, hrefFor, monitoringPath, pageHeadingId, readDetailId, readMonitoringId, sections } from './navigation'
+import { assistancePath, assistancePathFor, astronautDetailPath, hrefFor, monitoringPath, pageHeadingId, readAssistanceId, readDetailId, readMonitoringId, sections } from './navigation'
 
 interface AppShellProps {
   route: string
@@ -29,9 +29,15 @@ export function AppShell({ route, title, children }: AppShellProps) {
     }
   }, [focusRoute])
 
-  const activeSection = route === astronautDetailPath || readDetailId(route) !== null ? '/tripulacion' : focusRoute
+  const detailId = readDetailId(route)
+  const assistanceId = readAssistanceId(route)
+  const activeSection = route === astronautDetailPath || detailId !== null
+    ? '/tripulacion'
+    : assistanceId !== null ? assistancePath : focusRoute
+  const contextualId = detailId ?? readMonitoringId(route) ?? assistanceId
+  const contextualAssistancePath = contextualId ? assistancePathFor(contextualId) : assistancePath
 
-  const needsData = activeSection === '/tripulacion' || activeSection === monitoringPath
+  const needsData = activeSection === '/tripulacion' || activeSection === monitoringPath || activeSection === assistancePath
 
   useEffect(() => {
     if (previousOnline.current && !browserOnline && needsData && document.activeElement === document.body) {
@@ -86,7 +92,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
             component="ul"
             sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))', md: '1fr' },
+              gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(5, minmax(0, 1fr))', md: '1fr' },
               gap: 1,
               m: 0,
               p: 0,
@@ -98,7 +104,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
               return (
                 <Box component="li" key={path}>
                   <Link
-                    href={hrefFor(path)}
+                    href={hrefFor(path === assistancePath ? contextualAssistancePath : path)}
                     aria-current={active ? (route === path ? 'page' : 'location') : undefined}
                     underline={active ? 'always' : 'none'}
                     color={active ? 'primary' : 'text.primary'}
