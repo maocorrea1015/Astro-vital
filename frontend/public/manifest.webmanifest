@@ -1,0 +1,32 @@
+{
+  "id": "./",
+  "name": "Astro-vital",
+  "short_name": "Astro-vital",
+  "description": "Prototipo de monitoreo para tripulaciones en misiones espaciales.",
+  "lang": "es",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c1422",
+  "theme_color": "#142337",
+  "icons": [
+    {
+      "src": "icons/astro-vital-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/astro-vital-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/astro-vital-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
