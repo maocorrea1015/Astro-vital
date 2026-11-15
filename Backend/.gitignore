@@ -1,0 +1,38 @@
+# Variables de entorno y secretos
+.env
+.env.local
+
+# Bases de datos SQLite
+data/*.db
+data/*.db-wal
+data/*.db-shm
+*.sqlite3
+*.db
+
+# Directorios de logs
+logs/
+*.log
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Entornos virtuales
+env/
+venv/
+.venv/
+ENV/
+
+# Pruebas y cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editores y SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
