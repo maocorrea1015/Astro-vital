@@ -5,7 +5,7 @@ L00 inspeccionó `feature/frontend-foundation` en `6e3109e`. La base frontend co
 | ID | Estado técnico | Dependencia siguiente | Evidencia o informe | Revisión humana |
 | --- | --- | --- | --- | --- |
 | L01 | VERIFICADO | Traspaso al junior y revisión humana | [Informe L01](reports/L01-report.md) | Pendiente de revisión |
-| L02 | NO INICIADO | Base L01 | Sin informe | Sin revisión |
+| L02 | VERIFICADO | Revisión humana y acuerdos de integración | [Informe L02](reports/L02-report.md) | Pendiente de revisión |
 | L03 | NO INICIADO | Mauricio, contrato y acceso seguro | Sin informe | Sin revisión |
 | L04 | NO INICIADO | L02/L03 y J01/J02 para integrar | Sin informe | Sin revisión |
 | L05 | NO INICIADO | L04, J03/J04 y alcance de consultas | Sin informe | Sin revisión |
