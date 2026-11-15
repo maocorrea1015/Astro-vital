@@ -23,6 +23,8 @@ L00 inspeccionó `feature/frontend-foundation` en `6e3109e`. La base frontend co
 | L15 | DEMO OBSERVACIONAL A-01 VERIFICADA EN LABORATORIO | Revisión del líder, aprobación médica y acceso protegido antes de uso operativo | [Informe L15](reports/L15-medical-mvp-integration-report.md) | Pendiente de revisión |
 | L15-B | EVALUACIÓN RÁPIDA VERIFICADA | Revisión humana de UX e interpretación, y aprobación médica pendiente | [Informe L15-B](reports/L15-B-assistance-ux-correction.md) | Pendiente de revisión |
 | L15-C | GUÍAS EDUCATIVAS Y CINCO PERFILES VERIFICADOS EN LABORATORIO | Revisión del líder y aprobación médica pendiente | [Informe L15-C](reports/L15-C-first-aid-demo-report.md) | Pendiente de revisión |
+| L16 | BUILD DEMOSTRATIVO PROTEGIDO VERIFICADO EN LOCAL | Confirmar proveedor y validar acceso HTTPS en el entorno publicado | [Informe L16](reports/L16-deployed-assistance-demo-report.md) | Pendiente de revisión |
+| L17 | LOCALIZACIÓN EN INGLÉS VERIFICADA | Revisión del líder y publicación bajo configuración L16 | [Informe L17](reports/L17-english-localization-report.md) | Pendiente de revisión |
 
 Estados técnicos: NO INICIADO, EN CURSO, IMPLEMENTADO, VERIFICADO, BLOQUEADO y PENDIENTE DE VALIDACIÓN. IMPLEMENTADO registra código con validaciones pendientes. VERIFICADO exige evidencia de pruebas esenciales. En revisión humana, registra sin revisión, pendiente de revisión o aprobado con evidencia explícita.
 

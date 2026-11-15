@@ -61,10 +61,10 @@ export function CrewView({
       >
         <CircularProgress color="primary" sx={{ mb: 2 }} />
         <Typography variant="h6" component="h2" sx={{ fontWeight: 650 }}>
-          Cargando catálogo de tripulación...
+          Loading crew roster…
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Consultando estado de telemetría y conectividad de los tripulantes.
+          Loading crew telemetry and connectivity status.
         </Typography>
       </Paper>
     )
@@ -79,14 +79,14 @@ export function CrewView({
         action={
           onRetry ? (
             <Button color="inherit" size="small" onClick={onRetry} sx={{ fontWeight: 600 }}>
-              Reintentar
+              Retry
             </Button>
           ) : undefined
         }
         sx={{ borderRadius: 2 }}
       >
         <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-          Error al cargar la tripulación
+          Could not load the crew
         </Typography>
         <Typography variant="body2" sx={{ mt: 0.5 }}>
           {cleanError}
@@ -108,14 +108,14 @@ export function CrewView({
         }}
       >
         <Typography variant="h6" component="h2" sx={{ fontWeight: 650 }}>
-          No hay tripulantes disponibles
+          No crew members available
         </Typography>
         <Typography
           variant="body2"
           color="text.secondary"
           sx={{ mt: 1, maxWidth: '42ch', mx: 'auto' }}
         >
-          Actualmente no se registran astronautas en este catálogo de misión.
+          There are no astronauts on this mission roster.
         </Typography>
       </Paper>
     )
@@ -136,7 +136,7 @@ export function CrewView({
         <Box role="status" aria-live="polite">
           <LinearProgress color="primary" sx={{ borderRadius: 1, mb: 1 }} />
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-            Actualizando datos de tripulación en segundo plano...
+            Refreshing crew data in the background…
           </Typography>
         </Box>
       )}
@@ -149,14 +149,14 @@ export function CrewView({
           action={
             onRetry ? (
               <Button color="inherit" size="small" onClick={onRetry} sx={{ fontWeight: 600 }}>
-                Reintentar
+                Retry
               </Button>
             ) : undefined
           }
           sx={{ borderRadius: 2 }}
         >
           <Typography variant="body2">
-            No se pudo actualizar la tripulación: {cleanError}. Mostrando datos previamente cargados.
+            Could not refresh the crew roster: {cleanError}. Showing previously loaded data.
           </Typography>
         </Alert>
       )}
@@ -164,7 +164,7 @@ export function CrewView({
       {/* Cabecera y Resumen Operativo de Conectividad */}
       <Box
         component="section"
-        aria-label="Resumen operativo de tripulación"
+        aria-label="Crew status summary"
         sx={{
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
@@ -174,7 +174,7 @@ export function CrewView({
         }}
       >
         <Typography variant="h5" component="h2" sx={{ fontWeight: 700 }}>
-          Tripulación de la misión
+          Mission Crew
         </Typography>
 
         <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
@@ -188,21 +188,21 @@ export function CrewView({
             size="small"
             color="success"
             variant="outlined"
-            label={`● En línea: ${onlineCount}`}
+            label={`● Online: ${onlineCount}`}
             sx={{ fontWeight: 600 }}
           />
           <Chip
             size="small"
             color="default"
             variant="outlined"
-            label={`○ Sin conexión: ${offlineCount}`}
+            label={`○ Offline: ${offlineCount}`}
             sx={{ fontWeight: 600 }}
           />
           <Chip
             size="small"
             color="default"
             variant="outlined"
-            label={`? Desconocido: ${unknownCount}`}
+            label={`? Unknown: ${unknownCount}`}
             sx={{ fontWeight: 600 }}
           />
         </Stack>
@@ -211,7 +211,7 @@ export function CrewView({
       {/* Cuadrícula Adaptable de Tarjetas de Astronautas */}
       <Box
         component="ul"
-        aria-label="Lista de astronautas de la misión"
+        aria-label="Mission astronaut list"
         sx={{
           listStyle: 'none',
           m: 0,
@@ -257,7 +257,7 @@ export function CrewView({
                   <Chip
                     size="small"
                     color="primary"
-                    label="Seleccionado"
+                    label="Selected"
                     sx={{
                       fontWeight: 700,
                       fontSize: '0.7rem',

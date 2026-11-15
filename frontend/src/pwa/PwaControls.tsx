@@ -68,7 +68,7 @@ function useWaitingUpdate() {
         serviceWorker.removeEventListener('controllerchange', sync)
       }
     }).catch((error: unknown) => {
-      if (!disposed) console.warn('No se pudo registrar el Service Worker de Astro-vital.', error)
+      if (!disposed) console.warn('Could not register the Astro-vital service worker.', error)
     })
 
     return () => {
@@ -98,10 +98,10 @@ export function PwaControls() {
 
   return (
     <Stack spacing={1} sx={{ alignItems: { xs: 'flex-start', sm: 'flex-end' } }}>
-      {prompt && <Button variant="outlined" onClick={install}>Instalar Astro-vital</Button>}
+      {prompt && <Button variant="outlined" onClick={install}>Install Astro-vital</Button>}
       {waiting && (
         <Typography role="status" variant="body2" color="text.secondary">
-          Actualización disponible. Cierra todas las ventanas de Astro-vital y vuelve a abrir la aplicación para aplicarla.
+          Update available. Close all Astro-vital windows and reopen the app to apply it.
         </Typography>
       )}
     </Stack>

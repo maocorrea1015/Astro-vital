@@ -19,7 +19,7 @@ export function createAstronautApi(options?: ApiClientOptions) {
         access: 'protected', signal,
       })
       if (readings.some((reading) => reading.astronaut_id !== id)) {
-        throw new ContractError('identidad del astronauta en el historial')
+        throw new ContractError('astronaut identity in the reading history')
       }
       return readings.map(adaptHistoricalReading)
     },
@@ -28,7 +28,7 @@ export function createAstronautApi(options?: ApiClientOptions) {
       const status = await client.get(`/api/astronauts/${encodeURIComponent(id)}/status`, decodeAstronautStatus, {
         access: 'protected', signal,
       })
-      if (status.astronaut_id !== id) throw new ContractError('identidad del astronauta solicitado')
+      if (status.astronaut_id !== id) throw new ContractError('requested astronaut identity')
       return adaptAstronautStatus(status)
     },
   }

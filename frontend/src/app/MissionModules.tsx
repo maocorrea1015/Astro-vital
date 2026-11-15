@@ -4,7 +4,7 @@ import type { Astronaut, AstronautStatus, Reading } from '../services/api/adapte
 import type { Variable } from '../services/api/contracts'
 import { useCrewQuery, type CrewApi } from './crewQuery'
 import { assistancePathFor, hrefFor } from './navigation'
-import { displayTime, variables } from './telemetryPresentation'
+import { astronautLabel, displayTime, variables } from './telemetryPresentation'
 import './mission-modules.css'
 
 export interface MissionSelection {
@@ -15,12 +15,12 @@ export interface MissionSelection {
 
 export const missionMetrics = Object.keys(variables) as Variable[]
 export const metricMarks: Record<Variable, string> = { heart_rate: '♥', spo2: 'O₂', temperature: 'T', radiation_cpm: 'R', activity: 'A' }
-export const metricQuality = { ok: 'Nominal', degraded: 'Degradada', sensor_fault: 'Fallo de sensor' } as const
-export const missionSeverity = { critical: 'Crítica', warning: 'Advertencia', info: 'Informativa' } as const
+export const metricQuality = { ok: 'Nominal', degraded: 'Degraded', sensor_fault: 'Sensor Fault' } as const
+export const missionSeverity = { critical: 'Critical', warning: 'Warning', info: 'Informational' } as const
 export const severityOrder = { critical: 0, warning: 1, info: 2 } as const
-const reported = { normal: 'Normal', warning: 'Advertencia', critical: 'Crítico' } as const
-export const metricNumber = new Intl.NumberFormat('es-CO', { maximumSignificantDigits: 21 })
-export const summaryNumber = new Intl.NumberFormat('es-CO', { maximumSignificantDigits: 6 })
+const reported = { normal: 'Normal', warning: 'Warning', critical: 'Critical' } as const
+export const metricNumber = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 21 })
+export const summaryNumber = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 6 })
 
 export function useMissionCrew(api: CrewApi, id: string | null) {
   const load = useCallback((signal: AbortSignal) => api.listAstronauts(signal), [api])
@@ -55,23 +55,23 @@ export function MissionEmpty({ title, children, icon = '◇' }: { title: string;
 
 export function NodeStatus({ astronaut }: { astronaut: Astronaut }) {
   const online = astronaut.connection === 'online'
-  return <span className={'module-node ' + (online ? 'online' : 'offline')}><span aria-hidden="true">{online ? '●' : '○'}</span> {online ? 'En línea' : 'Sin conexión'}</span>
+  return <span className={'module-node ' + (online ? 'online' : 'offline')}><span aria-hidden="true">{online ? '●' : '○'}</span> {online ? 'Online' : 'Offline'}</span>
 }
 
 export function AstronautSelector({ crew, selectedId, onSelect, horizontal = false, disabled = false }: {
   crew: Astronaut[]; selectedId?: string; onSelect: (id: string) => void; horizontal?: boolean; disabled?: boolean
 }) {
   return (
-    <ul className={'module-astronauts' + (horizontal ? ' horizontal' : '')} aria-label="Astronautas disponibles">
+    <ul className={'module-astronauts' + (horizontal ? ' horizontal' : '')} aria-label="Available Astronauts">
       {crew.map((item) => (
         <li key={item.id}>
           <button type="button" aria-pressed={selectedId === item.id} disabled={disabled} onClick={() => onSelect(item.id)}>
-            <span className="module-avatar" aria-hidden="true">{(item.name || item.id).slice(0, 2).toUpperCase()}</span>
+            <span className="module-avatar" aria-hidden="true">{(astronautLabel(item)).slice(0, 2).toUpperCase()}</span>
             <span className="module-astronaut-copy">
-              <strong>{item.name || item.id}</strong>
+              <strong>{astronautLabel(item)}</strong>
               <small>{item.id}</small>
               <NodeStatus astronaut={item} />
-              {!horizontal && <small>Estado reportado: {reported[item.reportedStatus]}{item.reportedStatus !== 'normal' && ' · Aviso reportado'}</small>}
+              {!horizontal && <small>Reported Status: {reported[item.reportedStatus]}{item.reportedStatus !== 'normal' && ' · Reported alert'}</small>}
             </span>
           </button>
         </li>
@@ -86,13 +86,13 @@ export function MissionIdentity({ astronaut, status }: { astronaut: Astronaut; s
     <>
       <div className="module-identity">
         <span className="module-avatar large" aria-hidden="true">◉</span>
-        <div><strong>{current.name || current.id}</strong><small>ID: {current.id}</small></div>
+        <div><strong>{astronautLabel(current)}</strong><small>ID: {current.id}</small></div>
         <NodeStatus astronaut={current} />
       </div>
       <dl className="module-facts">
-        <div><dt>Estado reportado</dt><dd>{reported[current.reportedStatus]}</dd></div>
-        <div><dt>Último contacto</dt><dd>{displayTime(current.lastContactAtMs)}</dd></div>
-        <div><dt>Alertas activas</dt><dd>{status ? status.activeAlerts.length : 'Por consultar'}</dd></div>
+        <div><dt>Reported Status</dt><dd>{reported[current.reportedStatus]}</dd></div>
+        <div><dt>Last Contact</dt><dd>{displayTime(current.lastContactAtMs)}</dd></div>
+        <div><dt>Active Alerts</dt><dd>{status ? status.activeAlerts.length : 'Not loaded'}</dd></div>
       </dl>
     </>
   )
@@ -109,7 +109,7 @@ export function MetricRing({ variable, reading, active = false, onSelect }: {
         {reading?.unit && <small>{reading.unit}</small>}
       </span>
       <strong>{variables[variable]}</strong>
-      <small>{reading ? metricQuality[reading.quality] : 'Sin lectura'}</small>
+      <small>{reading ? metricQuality[reading.quality] : 'No reading'}</small>
       {active && reading && <small>{displayTime(reading.measuredAtMs)}</small>}
     </>
   )
@@ -117,7 +117,7 @@ export function MetricRing({ variable, reading, active = false, onSelect }: {
     : <div className="module-ring-button">{content}</div>
 }
 
-export function AssistanceLink({ id, children = 'Iniciar asistencia' }: { id?: string; children?: ReactNode }) {
+export function AssistanceLink({ id, children = 'Start Medical Assistance' }: { id?: string; children?: ReactNode }) {
   return id ? <a className="module-action primary" href={hrefFor(assistancePathFor(id))}>{children}</a>
     : <button className="module-action primary" type="button" disabled>{children}</button>
 }

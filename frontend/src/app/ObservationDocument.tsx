@@ -11,7 +11,7 @@ import { metricNumber, metricQuality } from './MissionModules'
 import { indicatorContext, medicalCards, observationDemo, observationSources } from './observationContent'
 import { variables } from './telemetryPresentation'
 
-export const observationDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'medium', timeZone: 'UTC' })
+export const observationDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'medium', timeZone: 'UTC' })
 export const observationTime = (ms: number) => observationDate.format(ms) + ' UTC'
 
 export function readingText(reading: Reading) {
@@ -23,8 +23,8 @@ export function ObservationReadings({ readings }: { readings: readonly Reading[]
     <div className="observation-readings">
       {readings.length ? <dl>{readings.map((reading) => <div key={reading.variable}>
         <dt>{variables[reading.variable]}</dt><dd>{readingText(reading)}</dd>
-      </div>)}</dl> : <p>Sin mediciones disponibles</p>}
-      <p className="module-note">Antigüedad sin clasificar. Las mediciones aportan contexto y no sustituyen la evaluación directa.</p>
+      </div>)}</dl> : <p>No readings available</p>}
+      <p className="module-note">Reading age unclassified. Readings provide context and do not replace direct assessment.</p>
     </div>
   )
 }
@@ -47,11 +47,11 @@ export function MedicalLibrary({ variable }: { variable?: Variable }) {
   const cardIds: readonly string[] | undefined = context?.cards
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)}>{variable ? 'Ver información relacionada' : 'Consultar fichas y fuentes'}</Button>
+      <Button variant="outlined" onClick={() => setOpen(true)}>{variable ? 'View Related Information' : 'View Briefs and Sources'}</Button>
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm" aria-labelledby={titleId}>
-        <DialogTitle id={titleId}>{variable ? variables[variable] : 'Fichas documentales · A-01'}</DialogTitle>
+        <DialogTitle id={titleId}>{variable ? variables[variable] : 'Research Briefs · A-01'}</DialogTitle>
         <DialogContent dividers className="observation-library">
-          <p>Ficha investigativa {observationDemo.version} · pendiente de revisión médica</p>
+          <p>Research brief {observationDemo.version} · pending medical review</p>
           {context && <><p>{context.text}</p><ObservationReferences ids={context.sources} /></>}
           {medicalCards.filter(({ id }) => !cardIds || cardIds.includes(id)).map((card) => (
             <article key={card.id}>
@@ -59,10 +59,10 @@ export function MedicalLibrary({ variable }: { variable?: Variable }) {
               <p>{card.text}</p><p>{card.limit}</p><ObservationReferences ids={card.sources} />
             </article>
           ))}
-          {!context && <details><summary>Las 11 referencias de la ficha</summary><ObservationReferences /></details>}
-          <p>Referencias registradas en la ficha v0.1, consultadas por sus autores el 15/11/2026. Su inclusión no acredita validación médica.</p>
+          {!context && <details><summary>All 11 references in the brief</summary><ObservationReferences /></details>}
+          <p>The authors accessed these references on Nov 15, 2026 for the v0.1 brief. Listing them does not establish medical validation.</p>
         </DialogContent>
-        <DialogActions><Button onClick={() => setOpen(false)}>Cerrar</Button></DialogActions>
+        <DialogActions><Button onClick={() => setOpen(false)}>Close</Button></DialogActions>
       </Dialog>
     </>
   )

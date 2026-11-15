@@ -23,7 +23,7 @@ test('A-01 conserva identificación, referencias y respuesta indeterminada, con 
   const sources = new Set(observationSources.map(({id}) => id))
   assert.equal(sources.size, 11)
   for (const question of observationQuestions) {
-    assert.equal(question.options.find(({id}) => id === 'unknown')?.label, 'No se puede determinar')
+    assert.equal(question.options.find(({id}) => id === 'unknown')?.label, 'Unable to determine')
     assert.ok(question.sourceIds.every((id) => sources.has(id)))
   }
   const cards = medicalCards.map(({id}) => id)
@@ -42,7 +42,7 @@ test('la ruta rápida prioriza respuesta, respiración y entorno, con observacio
 })
 
 test('sin datos o con sensor fallido se conserva incertidumbre y falta de evidencia', () => {
-  assert.equal(interpretObservation(new Map()).priority, 'Información insuficiente')
+  assert.equal(interpretObservation(new Map()).priority, 'Insufficient Information')
   const result = interpretObservation(new Map([['Q01',['unknown']]]), [{quality:'sensor_fault'}])
   assert.equal(result.unknown, 1)
   assert.equal(result.failed, 1)
@@ -55,12 +55,12 @@ test('observaciones y avisos discordantes permanecen separados', () => {
   const result = interpretObservation(normalBreathing, [{quality:'ok'}], [{variable:'spo2',severity:'critical'}])
   assert.equal(result.different, true)
   assert.equal(result.flagged, true)
-  assert.equal(result.reason, 'Flask reportó una alerta crítica.')
+  assert.equal(result.reason, 'Flask reported a critical alert.')
   assert.equal(result.situations.length, 0)
   const combination = interpretObservation(new Map([['Q01',['no']],['Q02',['no']]]))
   assert.equal(combination.flagged, true)
   assert.equal(combination.situations.length, 2)
-  assert.match(combination.action, /procedimiento autorizado/)
+  assert.match(combination.action, /authorized mission procedure/)
 })
 
 test('las seis guías siguen las observaciones y conservan incertidumbre y fuentes', () => {

@@ -17,7 +17,7 @@ const entry = [
   "import {theme} from './app/theme';",
   "import {createAstronautApi} from './services/api/astronauts';",
   "const api = createAstronautApi({protectedPathPrefix:'/fixture'});",
-  "createRoot(document.getElementById('root')).render(<ThemeProvider theme={theme}><CssBaseline/><p style={{position:'absolute',top:2,right:16,color:'#adc3d2',fontSize:11}}>Datos sintéticos · ensayo local</p><App crewApi={api}/></ThemeProvider>);",
+  "createRoot(document.getElementById('root')).render(<ThemeProvider theme={theme}><CssBaseline/><p style={{position:'absolute',top:2,right:16,color:'#adc3d2',fontSize:11}}>Synthetic data · local test</p><App crewApi={api}/></ThemeProvider>);",
 ].join('\n')
 
 const fixtureCatalog = {
@@ -25,11 +25,11 @@ const fixtureCatalog = {
   review: { reviewer: 'Fixture', reviewedOn: '2026-11-15', reference: 'Fixture', audience: 'Fixture', scope: 'Fixture' },
   sources: [{ id: 'test', organization: 'Fixture', title: 'Fixture', url: 'https://example.invalid', version: '1', accessedOn: '2026-11-15', section: 'Fixture' }],
   questions: [{
-    id: 'figure', kind: 'single', prompt: 'Elige una figura de prueba', sourceIds: ['test'],
-    options: [{ id: 'circle', label: 'Círculo' }, { id: 'square', label: 'Cuadrado' }],
+    id: 'figure', kind: 'single', prompt: 'Choose a test shape', sourceIds: ['test'],
+    options: [{ id: 'circle', label: 'Circle' }, { id: 'square', label: 'Square' }],
   }, {
-    id: 'color', kind: 'multiple', prompt: 'Elige colores de prueba', sourceIds: ['test'],
-    options: [{ id: 'red', label: 'Rojo' }, { id: 'blue', label: 'Azul' }],
+    id: 'color', kind: 'multiple', prompt: 'Choose test colors', sourceIds: ['test'],
+    options: [{ id: 'red', label: 'Red' }, { id: 'blue', label: 'Blue' }],
   }],
 }
 
@@ -98,10 +98,10 @@ try {
     const region = (name) => page.getByRole('region', { name, exact: true })
     const title = (name) => page.getByRole('heading', { name, level: 1, exact: true }).waitFor()
     const go = async (name, pageTitle = name) => {
-      await page.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name, exact: true }).click()
+      await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name, exact: true }).click()
       await title(pageTitle)
     }
-    const roster = page.getByRole('list', { name: 'Astronautas disponibles' })
+    const roster = page.getByRole('list', { name: 'Available Astronauts' })
     const pick = (name) => roster.getByRole('button', { name }).click()
     const isSelected = async (name) => assert.equal(await roster.getByRole('button', { name }).getAttribute('aria-pressed'), 'true')
     const measure = async (key) => {
@@ -113,86 +113,86 @@ try {
     }
 
     await page.goto(base + '#/')
-    await title('Centro de control de salud')
-    await region('Estado y asistencia').getByText('2 alertas activas', { exact: true }).waitFor()
+    await title('Mission Control')
+    await region('Status and Assistance').getByText('2 active alerts', { exact: true }).waitFor()
     await measure('inicio')
-    await go('Tripulación')
-    await region('Perfil del astronauta').getByText('141,5', { exact: true }).waitFor()
+    await go('Crew')
+    await region('Astronaut Profile').getByText('141.5', { exact: true }).waitFor()
     await isSelected(/Elena/)
     await measure('tripulacion')
-    const telemetryMap = region('Mapa de telemetría')
-    const temperature = telemetryMap.getByRole('button', { name: /Temperatura/ })
+    const telemetryMap = region('Telemetry Map')
+    const temperature = telemetryMap.getByRole('button', { name: /Body Temperature/ })
     await temperature.focus()
     await page.keyboard.press('Enter')
     assert.equal(await temperature.getAttribute('aria-pressed'), 'true')
     await pick(/Mateo/)
     await isSelected(/Mateo/)
-    await page.getByRole('link', { name: 'Ver monitoreo', exact: true }).click()
-    await title('Monitoreo')
+    await page.getByRole('link', { name: 'View Monitoring', exact: true }).click()
+    await title('Monitoring')
     await isSelected(/Mateo/)
-    await page.getByText('No hay lecturas disponibles en este intervalo.', { exact: true }).waitFor()
+    await page.getByText('No readings available in this time range.', { exact: true }).waitFor()
     await pick(/Elena/)
     await isSelected(/Elena/)
-    await page.getByRole('heading', { name: 'Evolución temporal · Frecuencia cardíaca' }).waitFor()
-    await page.getByRole('button', { name: 'Muestra anterior' }).waitFor()
+    await page.getByRole('heading', { name: 'Trend Over Time · Heart Rate' }).waitFor()
+    await page.getByRole('button', { name: 'Previous Reading' }).waitFor()
     await measure('monitoreo')
-    await page.getByRole('button', { name: 'Muestra anterior' }).click()
-    await page.getByText('Muestra 6 de 7', { exact: false }).waitFor()
-    await page.getByRole('button', { name: 'Temperatura', exact: true }).click()
-    await page.getByRole('heading', { name: 'Evolución temporal · Temperatura' }).waitFor()
-    await page.getByRole('button', { name: 'Visualizar como tabla de datos accesible' }).click()
+    await page.getByRole('button', { name: 'Previous Reading' }).click()
+    await page.getByText('Reading 6 of 7', { exact: false }).waitFor()
+    await region('Trend Over Time').getByRole('button', { name: 'Body Temperature', exact: true }).click()
+    await page.getByRole('heading', { name: 'Trend Over Time · Body Temperature' }).waitFor()
+    await page.getByRole('button', { name: 'Show as an accessible data table' }).click()
     await page.getByRole('table').waitFor()
 
-    await go('Alertas')
+    await go('Alerts')
     await isSelected(/Elena/)
-    await page.getByRole('list', { name: 'Lista de alertas' }).getByRole('button', { name: /Frecuencia cardíaca/ }).waitFor()
+    await page.getByRole('list', { name: 'Alert list' }).getByRole('button', { name: /Heart Rate/ }).waitFor()
     await measure('alertas')
-    await page.getByRole('button', { name: 'Advertencias', exact: true }).click()
-    const list = page.getByRole('list', { name: 'Lista de alertas' })
+    await page.getByRole('button', { name: 'Warnings', exact: true }).click()
+    const list = page.getByRole('list', { name: 'Alert list' })
     assert.equal(await list.getByRole('listitem').count(), 1)
-    assert.match(await list.innerText(), /Temperatura/)
+    assert.match(await list.innerText(), /Body Temperature/)
     assert.equal(await page.getByText('Texto excluido del fixture', { exact: true }).count(), 0)
-    await go('Asistencia')
+    await go('Medical Assistance')
     await isSelected(/Elena/)
-    await page.getByText('El cuestionario de asistencia está pendiente de validación médica', { exact: true }).waitFor()
+    await page.getByText('The assistance questionnaire is pending medical review', { exact: true }).waitFor()
     assert.equal(await page.getByRole('radio').count(), 0)
     await measure('asistencia')
-    await page.getByRole('button', { name: 'Confirmar astronauta', exact: true }).click()
-    await page.getByRole('heading', { name: 'Astronauta confirmado: Elena Vega', exact: true }).waitFor()
-    await page.getByRole('button', { name: 'Cancelar sesión' }).click()
+    await page.getByRole('button', { name: 'Confirm Astronaut', exact: true }).click()
+    await page.getByRole('heading', { name: 'Astronaut confirmed: Elena Vega', exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Cancel Session' }).click()
 
     if (width === 375) {
       await page.goto(base + '?questions=1#/asistencia/astro-01')
-      await page.getByRole('button', { name: 'Iniciar sesión' }).click()
-      await region('Asistencia guiada').getByRole('heading', { name: 'Elige una figura de prueba' }).waitFor()
-      await page.getByRole('radio', { name: 'Círculo' }).check()
-      await page.getByRole('button', { name: 'Siguiente' }).click()
-      await page.getByRole('checkbox', { name: 'Rojo' }).check()
-      await page.getByRole('checkbox', { name: 'Azul' }).check()
-      await page.getByRole('button', { name: 'Anterior' }).click()
-      await page.getByRole('radio', { name: 'Cuadrado' }).check()
-      await go('Inicio', 'Centro de control de salud')
+      await page.getByRole('button', { name: 'Start Session' }).click()
+      await region('Guided Assistance').getByRole('heading', { name: 'Choose a test shape' }).waitFor()
+      await page.getByRole('radio', { name: 'Circle' }).check()
+      await page.getByRole('button', { name: 'Next' }).click()
+      await page.getByRole('checkbox', { name: 'Red' }).check()
+      await page.getByRole('checkbox', { name: 'Blue' }).check()
+      await page.getByRole('button', { name: 'Previous' }).click()
+      await page.getByRole('radio', { name: 'Square' }).check()
+      await go('Home', 'Mission Control')
       await page.evaluate(() => { location.hash = '#/asistencia/astro-01' })
-      await page.getByRole('radio', { name: 'Círculo' }).waitFor()
-      assert.equal(await page.getByRole('radio', { name: 'Cuadrado' }).isChecked(), true)
-      await page.getByRole('button', { name: 'Siguiente' }).click()
-      assert.equal(await page.getByRole('checkbox', { name: 'Azul' }).isChecked(), true)
-      await page.getByRole('button', { name: 'Finalizar cuestionario' }).click()
-      await region('Asistencia guiada').getByRole('heading', { name: 'Cuestionario completado' }).waitFor()
-      await page.getByRole('button', { name: 'Cancelar sesión' }).click()
+      await page.getByRole('radio', { name: 'Circle' }).waitFor()
+      assert.equal(await page.getByRole('radio', { name: 'Square' }).isChecked(), true)
+      await page.getByRole('button', { name: 'Next' }).click()
+      assert.equal(await page.getByRole('checkbox', { name: 'Blue' }).isChecked(), true)
+      await page.getByRole('button', { name: 'Finish Questionnaire' }).click()
+      await region('Guided Assistance').getByRole('heading', { name: 'Questionnaire Complete' }).waitFor()
+      await page.getByRole('button', { name: 'Cancel Session' }).click()
       assert.equal(await page.getByRole('radio').count(), 0)
     }
     if (width === 1440) {
       mode = 'empty'
       await page.goto(base + '#/tripulacion')
       await page.reload()
-      await page.getByText('No hay astronautas disponibles', { exact: true }).waitFor()
+      await page.getByText('No astronauts available', { exact: true }).waitFor()
       await measure('tripulacion-vacia')
       mode = 'error'
-      await page.getByRole('button', { name: 'Reintentar' }).click()
+      await page.getByRole('button', { name: 'Retry' }).click()
       await page.getByRole('alert').waitFor()
       mode = 'ready'
-      await page.getByRole('button', { name: 'Reintentar' }).click()
+      await page.getByRole('button', { name: 'Retry' }).click()
       await roster.waitFor()
     }
     assert.ok(requests.length && requests.every(([method,key]) => method === 'GET' && key === undefined))

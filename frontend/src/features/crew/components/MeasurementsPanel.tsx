@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography'
 export interface CurrentMeasurementItem {
   /** Variable fisiológica o ambiental monitoreada */
   variable: TelemetryVariable
-  /** Etiqueta descriptiva para visualización (ej. 'Frecuencia cardíaca') */
+  /** Etiqueta descriptiva para visualización (ej. 'Heart Rate') */
   variableLabel?: string | null
   /** Valor numérico medido (0 es válido) */
   value?: number | null
@@ -74,12 +74,12 @@ export function MeasurementsPanel({
       >
         <CircularProgress color="primary" sx={{ mb: 2 }} />
         <Typography variant="h6" component="h3" sx={{ fontWeight: 650 }}>
-          Cargando telemetría...
+          Loading telemetry…
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           {cleanName
-            ? `Consultando lecturas actuales de ${cleanName}.`
-            : 'Consultando lecturas fisiológicas y ambientales.'}
+            ? `Loading current readings for ${cleanName}.`
+            : 'Loading physiological and environmental readings.'}
         </Typography>
       </Paper>
     )
@@ -94,14 +94,14 @@ export function MeasurementsPanel({
         action={
           onRetry ? (
             <Button color="inherit" size="small" onClick={onRetry} sx={{ fontWeight: 600 }}>
-              Reintentar
+              Retry
             </Button>
           ) : undefined
         }
         sx={{ borderRadius: 2 }}
       >
         <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-          Error al cargar mediciones
+          Could not load readings
         </Typography>
         <Typography variant="body2" sx={{ mt: 0.5 }}>
           {cleanError}
@@ -123,7 +123,7 @@ export function MeasurementsPanel({
         }}
       >
         <Typography variant="h6" component="h3" sx={{ fontWeight: 650 }}>
-          No hay mediciones disponibles
+          No readings available
         </Typography>
         <Typography
           variant="body2"
@@ -131,8 +131,8 @@ export function MeasurementsPanel({
           sx={{ mt: 1, maxWidth: '42ch', mx: 'auto' }}
         >
           {cleanName
-            ? `Actualmente no se registran datos telemétricos para ${cleanName}.`
-            : 'Actualmente no se registran datos telemétricos en esta selección.'}
+            ? `No telemetry is recorded for ${cleanName}.`
+            : 'No telemetry is recorded for this selection.'}
         </Typography>
       </Paper>
     )
@@ -145,7 +145,7 @@ export function MeasurementsPanel({
         <Box role="status" aria-live="polite">
           <LinearProgress color="primary" sx={{ borderRadius: 1, mb: 1 }} />
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-            Actualizando lecturas en segundo plano...
+            Refreshing readings in the background…
           </Typography>
         </Box>
       )}
@@ -158,14 +158,14 @@ export function MeasurementsPanel({
           action={
             onRetry && !isLoading ? (
               <Button color="inherit" size="small" onClick={onRetry} sx={{ fontWeight: 600 }}>
-                Reintentar
+                Retry
               </Button>
             ) : undefined
           }
           sx={{ borderRadius: 2 }}
         >
           <Typography variant="body2">
-            No se pudieron actualizar las lecturas: {cleanError}. Mostrando datos previos.
+            Could not refresh readings: {cleanError}. Showing previously loaded data.
           </Typography>
         </Alert>
       )}
@@ -173,7 +173,7 @@ export function MeasurementsPanel({
       {/* Cabecera del Panel */}
       <Box
         component="section"
-        aria-label="Encabezado de mediciones actuales"
+        aria-label="Current readings header"
         sx={{
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
@@ -184,11 +184,11 @@ export function MeasurementsPanel({
       >
         <Box>
           <Typography variant="h5" component="h2" sx={{ fontWeight: 700 }}>
-            {cleanName ? `Mediciones · ${cleanName}` : 'Mediciones fisiológicas y ambientales'}
+            {cleanName ? `Readings · ${cleanName}` : 'Physiological and Environmental Readings'}
           </Typography>
           {cleanLastUpdated && (
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25 }}>
-              Última actualización general: {cleanLastUpdated}
+              Last updated: {cleanLastUpdated}
             </Typography>
           )}
         </Box>
@@ -198,7 +198,7 @@ export function MeasurementsPanel({
             size="small"
             variant="outlined"
             color="info"
-            label="Simulación / Demo"
+            label="Simulation / Demo"
             sx={{ fontWeight: 600 }}
           />
         )}
@@ -207,7 +207,7 @@ export function MeasurementsPanel({
       {/* Cuadrícula Adaptable de Indicadores de Medición */}
       <Box
         component="ul"
-        aria-label="Lista de indicadores de telemetría"
+        aria-label="Telemetry indicator list"
         sx={{
           listStyle: 'none',
           m: 0,

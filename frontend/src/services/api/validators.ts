@@ -20,7 +20,7 @@ export class ContractError extends Error {
   readonly responseType: string
 
   constructor(responseType: string) {
-    super(`Respuesta incompatible con el contrato: ${responseType}.`)
+    super(`Response does not match the API contract: ${responseType}.`)
     this.name = 'ContractError'
     this.responseType = responseType
   }
@@ -81,19 +81,19 @@ const checkNote = shape<NoteDto>({
   id: positiveId, astronaut_id: isAstronautId, ts: timestamp, texto: text, creado_en: timestamp,
 })
 
-export const decodeHealth = decode('salud del servicio', shape<HealthDto>({ status: oneOf('ok'), service: text }))
-export const decodeAstronauts = decode('lista de astronautas', list(checkAstronaut))
-export const decodeAstronautStatus = decode('estado de astronauta', shape<AstronautStatusDto>({
+export const decodeHealth = decode('service health', shape<HealthDto>({ status: oneOf('ok'), service: text }))
+export const decodeAstronauts = decode('astronaut list', list(checkAstronaut))
+export const decodeAstronautStatus = decode('astronaut status', shape<AstronautStatusDto>({
   ...astronautFields, lecturas: list(checkReading), alertas_activas: list(checkActiveAlert),
   linea_base: list(checkBaseline), guia_actual: nullable(checkGuide),
 }))
-export const decodeReadings = decode('historial de lecturas', list(checkHistory))
-export const decodeAlerts = decode('lista de alertas', list(checkAlert))
-export const decodeNotes = decode('lista de notas', list(checkNote))
-export const decodeNoteReceipt = decode('confirmación de nota', shape<NoteReceiptDto>({ nota_id: positiveId }))
-export const decodeAcknowledgeReceipt = decode('confirmación de reconocimiento', shape<AcknowledgeReceiptDto>({ status: oneOf('ok') }))
+export const decodeReadings = decode('reading history', list(checkHistory))
+export const decodeAlerts = decode('alert list', list(checkAlert))
+export const decodeNotes = decode('note list', list(checkNote))
+export const decodeNoteReceipt = decode('note receipt', shape<NoteReceiptDto>({ nota_id: positiveId }))
+export const decodeAcknowledgeReceipt = decode('acknowledgment receipt', shape<AcknowledgeReceiptDto>({ status: oneOf('ok') }))
 
-export const decodeError = decode('error HTTP', shape<ErrorDto>({
+export const decodeError = decode('HTTP error', shape<ErrorDto>({
   error: text,
   retry_after: (value) => value === undefined || count(value),
 }))

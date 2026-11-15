@@ -13,20 +13,27 @@ const publicFiles = [
 export function pwaPlugin(): Plugin {
   let root: string
   let publicDir: string
+  let protectedDemo: boolean
 
   return {
     name: 'astro-vital-pwa',
     apply: 'build',
     configResolved(config) {
+      protectedDemo = config.mode === 'educational-demo'
       root = config.root
       publicDir = config.publicDir
     },
     generateBundle: {
       order: 'post',
       async handler(_options, bundle) {
+        if (protectedDemo) {
+          const source = await readFile(resolve(root, 'src/pwa/demo-worker.js'), 'utf8')
+          this.emitFile({ type: 'asset', fileName: 'sw.js', source })
+          return
+        }
         const shell = Object.keys(bundle).filter((name) =>
           name === 'index.html' || /\.(js|css)$/.test(name))
-        if (!shell.includes('index.html')) this.error('Falta index.html en el build de la PWA.')
+        if (!shell.includes('index.html')) this.error('index.html is missing from the PWA build.')
 
         // Use emitted content as well as public assets so a manifest or icon change also updates the worker.
         const files = [...shell, ...publicFiles].sort()

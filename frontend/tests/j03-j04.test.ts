@@ -39,7 +39,7 @@ test('J04 adapta solo metadatos autorizados del estado del astronauta', () => {
   assert.equal(alert.acknowledged, false)
   assert.equal(alert.isSimulated, undefined)
   assert.match(alert.timeFormatted, / UTC$/)
-  assert.match(alert.message, /pendiente de validación/)
+  assert.match(alert.message, /Pending Validation/)
   assert.doesNotMatch(alert.message, /Texto privado/)
   assert.equal('onAcknowledge' in alert, false)
 })

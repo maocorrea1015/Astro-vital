@@ -15,18 +15,18 @@ export type ApiErrorKind =
   | 'invalid-response'
 
 const messages: Record<ApiErrorKind, string> = {
-  configuration: 'Configuración de API inválida.',
-  'access-unconfigured': 'El acceso protegido aún no está configurado.',
-  'invalid-request': 'Solicitud inválida.',
-  unauthorized: 'Acceso a la API no autorizado.',
-  'not-found': 'Recurso no encontrado.',
-  'rate-limited': 'Límite de solicitudes alcanzado.',
-  server: 'La API devolvió un error de servidor.',
-  http: 'Respuesta HTTP inesperada.',
-  network: 'No se pudo conectar con la API.',
-  timeout: 'La API excedió el tiempo de espera.',
-  cancelled: 'Solicitud cancelada.',
-  'invalid-response': 'La API devolvió una respuesta JSON inesperada.',
+  configuration: 'Invalid API configuration.',
+  'access-unconfigured': 'Protected access is not configured.',
+  'invalid-request': 'Invalid request.',
+  unauthorized: 'API access unauthorized.',
+  'not-found': 'Resource not found.',
+  'rate-limited': 'Request limit reached.',
+  server: 'The API returned a server error.',
+  http: 'Unexpected HTTP response.',
+  network: 'Could not connect to the API.',
+  timeout: 'The API request timed out.',
+  cancelled: 'Request canceled.',
+  'invalid-response': 'The API returned an unexpected JSON response.',
 }
 
 export class ApiError extends Error {
