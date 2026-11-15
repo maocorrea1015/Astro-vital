@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import type { createAstronautApi } from '../services/api/astronauts'
 import { ApiError } from '../services/api/client'
+import { pageHeadingId } from './navigation'
 
 export type CrewApi = Pick<ReturnType<typeof createAstronautApi>, 'listAstronauts' | 'getAstronautStatus' | 'getAstronautReadings'>
 
@@ -34,6 +35,8 @@ export function useCrewQuery<T>(load: (signal: AbortSignal) => Promise<T>) {
   }, [load, attempt])
 
   function retry() {
+    // The loading state replaces the focused retry button.
+    document.getElementById(pageHeadingId)?.focus()
     setResult({ kind: 'loading' })
     setAttempt((previous) => previous + 1)
   }

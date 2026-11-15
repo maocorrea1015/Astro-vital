@@ -70,6 +70,13 @@ const CONNECTION_STATUS_CONFIG: Record<
   },
 }
 
+const statusChipStyle = {
+  fontWeight: 600,
+  height: 'auto',
+  minHeight: 24,
+  '& .MuiChip-label': { whiteSpace: 'normal', overflowWrap: 'anywhere' },
+}
+
 export function AstronautCard({
   id,
   name,
@@ -115,13 +122,13 @@ export function AstronautCard({
             variant="outlined"
             color={connectionCfg.color}
             label={`${connectionCfg.symbol} ${connectionCfg.label}`}
-            sx={{ fontWeight: 600 }}
+            sx={statusChipStyle}
           />
           <Chip
             size="small"
             color={generalCfg.color}
             label={'Estado reportado: ' + generalCfg.label}
-            sx={{ fontWeight: 600 }}
+            sx={statusChipStyle}
           />
         </Stack>
 

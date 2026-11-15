@@ -10,7 +10,7 @@ L00 inspeccionó `feature/frontend-foundation` en `6e3109e`. La base frontend co
 | L04 | L04-B COMPOSICIÓN VERIFICADA LOCALMENTE | Consulta autenticada con Flask pendiente | [Informe L04-A](reports/L04-A-report.md) · [Informe L04-B](reports/L04-B-integration-report.md) | Pendiente de revisión |
 | L05 | VERIFICADO LOCALMENTE (75% del alcance integral) | Acceso autenticado, frescura y montaje J03/J04 pendientes | [Informe L05](reports/L05-report.md) | Pendiente de revisión |
 | L06 | IMPLEMENTADO Y VERIFICADO LOCALMENTE | Lanzamiento standalone interactivo y entorno de demo pendientes | [Informe L06](reports/L06-report.md) | Pendiente de revisión |
-| L07 | NO INICIADO | Aplicación y entregas junior disponibles | Sin informe | Sin revisión |
+| L07 | VERIFICADO LOCALMENTE | Flask autenticado y apertura standalone pendientes | [Informe L07](reports/L07-report.md) | Pendiente de revisión |
 | L08 | NO INICIADO | Entorno, simulación y corte demostrable | Sin informe | Sin revisión |
 | L09 | PENDIENTE DE VALIDACIÓN | Alcance y aprobación médica | Sin informe | Sin revisión |
 

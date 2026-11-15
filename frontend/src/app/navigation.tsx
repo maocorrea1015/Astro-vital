@@ -2,6 +2,8 @@ import { useSyncExternalStore } from 'react'
 
 import { isAstronautId } from '../services/api/validators'
 
+export const pageHeadingId = 'page-heading'
+
 export const monitoringPath = '/monitoreo'
 
 export const sections = [
