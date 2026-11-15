@@ -1,0 +1,360 @@
+{
+  "labReady": {
+    "ready": true,
+    "bind": "http://127.0.0.1:5000",
+    "sqlite": "l10b.sqlite",
+    "temporal": true,
+    "health": 200,
+    "post_sin_clave": 401,
+    "produccion_lectura_anonima": false
+  },
+  "bundle": {
+    "archivos_bundle": 6,
+    "clave_efimera_en_bundle": false
+  },
+  "a": {
+    "mode": "normal",
+    "posts": [
+      {
+        "status": 200,
+        "reply": {
+          "recibidas": 5,
+          "duplicadas": 0,
+          "invalidas": 0,
+          "alertas_generadas": 0
+        },
+        "sample": [
+          {
+            "ts": 1794732812,
+            "variable": "heart_rate",
+            "value": 72.4,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732812,
+            "variable": "spo2",
+            "value": 99,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732812,
+            "variable": "temperature",
+            "value": 36.6,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732812,
+            "variable": "radiation_cpm",
+            "value": 14.9,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732812,
+            "variable": "activity",
+            "value": 18.3,
+            "quality": "ok"
+          }
+        ]
+      },
+      {
+        "status": 200,
+        "reply": {
+          "recibidas": 5,
+          "duplicadas": 0,
+          "invalidas": 0,
+          "alertas_generadas": 0
+        },
+        "sample": [
+          {
+            "ts": 1794732815,
+            "variable": "heart_rate",
+            "value": 72.2,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732815,
+            "variable": "spo2",
+            "value": 98.7,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732815,
+            "variable": "temperature",
+            "value": 36.6,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732815,
+            "variable": "radiation_cpm",
+            "value": 13.2,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732815,
+            "variable": "activity",
+            "value": 18,
+            "quality": "ok"
+          }
+        ]
+      }
+    ],
+    "rules_evaluated": 10,
+    "rule_alerts": [],
+    "status": 200,
+    "history": 200,
+    "sqlite_rows": 10,
+    "alerts": [],
+    "heart_rate": [
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "ok",
+        "id": 6,
+        "ts": 1794732815,
+        "valor": 72.2,
+        "variable": "heart_rate"
+      },
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "ok",
+        "id": 1,
+        "ts": 1794732812,
+        "valor": 72.4,
+        "variable": "heart_rate"
+      }
+    ]
+  },
+  "b": {
+    "mode": "tachycardia",
+    "posts": [
+      {
+        "status": 200,
+        "reply": {
+          "recibidas": 5,
+          "duplicadas": 0,
+          "invalidas": 0,
+          "alertas_generadas": 1
+        },
+        "sample": [
+          {
+            "ts": 1794732821,
+            "variable": "heart_rate",
+            "value": 141.5,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732821,
+            "variable": "spo2",
+            "value": 94.3,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732821,
+            "variable": "temperature",
+            "value": 37.5,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732821,
+            "variable": "radiation_cpm",
+            "value": 14.3,
+            "quality": "ok"
+          },
+          {
+            "ts": 1794732821,
+            "variable": "activity",
+            "value": 8.2,
+            "quality": "ok"
+          }
+        ]
+      }
+    ],
+    "rules_evaluated": 5,
+    "rule_alerts": [
+      "critical"
+    ],
+    "status": 200,
+    "history": 200,
+    "sqlite_rows": 15,
+    "alerts": [
+      {
+        "id": 1,
+        "ts": 1794732821,
+        "variable": "heart_rate",
+        "valor": 141.5,
+        "severidad": "critical"
+      }
+    ],
+    "heart_rate": [
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "ok",
+        "id": 11,
+        "ts": 1794732821,
+        "valor": 141.5,
+        "variable": "heart_rate"
+      },
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "ok",
+        "id": 6,
+        "ts": 1794732815,
+        "valor": 72.2,
+        "variable": "heart_rate"
+      },
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "ok",
+        "id": 1,
+        "ts": 1794732812,
+        "valor": 72.4,
+        "variable": "heart_rate"
+      }
+    ]
+  },
+  "fault": {
+    "mode": "sensor_fault",
+    "posts": [
+      {
+        "status": 200,
+        "reply": {
+          "recibidas": 5,
+          "duplicadas": 0,
+          "invalidas": 0,
+          "alertas_generadas": 0
+        },
+        "sample": [
+          {
+            "ts": 1794732825,
+            "variable": "heart_rate",
+            "value": 0,
+            "quality": "sensor_fault"
+          },
+          {
+            "ts": 1794732825,
+            "variable": "spo2",
+            "value": 0,
+            "quality": "sensor_fault"
+          },
+          {
+            "ts": 1794732825,
+            "variable": "temperature",
+            "value": 36.6,
+            "quality": "sensor_fault"
+          },
+          {
+            "ts": 1794732825,
+            "variable": "radiation_cpm",
+            "value": 14.8,
+            "quality": "sensor_fault"
+          },
+          {
+            "ts": 1794732825,
+            "variable": "activity",
+            "value": 11.2,
+            "quality": "sensor_fault"
+          }
+        ]
+      }
+    ],
+    "rules_evaluated": 0,
+    "rule_alerts": [],
+    "status": 200,
+    "history": 200,
+    "sqlite_rows": 20,
+    "alerts": [
+      {
+        "id": 1,
+        "ts": 1794732821,
+        "variable": "heart_rate",
+        "valor": 141.5,
+        "severidad": "critical"
+      }
+    ],
+    "heart_rate": [
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "sensor_fault",
+        "id": 16,
+        "ts": 1794732825,
+        "valor": 0,
+        "variable": "heart_rate"
+      },
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "ok",
+        "id": 11,
+        "ts": 1794732821,
+        "valor": 141.5,
+        "variable": "heart_rate"
+      },
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "ok",
+        "id": 6,
+        "ts": 1794732815,
+        "valor": 72.2,
+        "variable": "heart_rate"
+      },
+      {
+        "astronaut_id": "astro-01",
+        "calidad": "ok",
+        "id": 1,
+        "ts": 1794732812,
+        "valor": 72.4,
+        "variable": "heart_rate"
+      }
+    ]
+  },
+  "visual": [
+    {
+      "width": 1440,
+      "inicio": true,
+      "tripulacion": true,
+      "detalle": true,
+      "monitoreo": true,
+      "alertaId": 1,
+      "asistencia": true,
+      "overflow": false
+    },
+    {
+      "width": 375,
+      "inicio": true,
+      "tripulacion": true,
+      "detalle": true,
+      "monitoreo": true,
+      "alertaId": 1,
+      "asistencia": true,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "inicio": true,
+      "tripulacion": true,
+      "detalle": true,
+      "monitoreo": true,
+      "alertaId": 1,
+      "asistencia": true,
+      "overflow": false
+    }
+  ],
+  "utc": "15/11/2026, 8:53 a. m. UTC",
+  "resilience": {
+    "empty": true,
+    "devFail": 502,
+    "retry": true,
+    "previewProxy": false,
+    "offline": true,
+    "staticEntries": 6
+  },
+  "browser": {
+    "GET": 65,
+    "POST": 0,
+    "apiKey": 0,
+    "cookie": 0,
+    "paths": [
+      "/api/astronauts",
+      "/api/astronauts/astro-01/readings",
+      "/api/astronauts/astro-01/status"
+    ]
+  }
+}
