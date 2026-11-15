@@ -17,6 +17,7 @@ L00 inspeccionó `feature/frontend-foundation` en `6e3109e`. La base frontend co
 | L10-A | INICIO VERIFICADO LOCALMENTE | Revisión del líder | [Informe L10-A](reports/L10-A-report.md) | Pendiente de revisión |
 | L10-B | DEMO VERIFICADA EN LABORATORIO | Confirmar equipo de presentación y repetir el guion con Inicio integrado | [Informe L10-B](reports/L10-B-demo-validation-report.md) | Pendiente de revisión |
 | J05 | AUDITORÍA CONCILIADA Y UX VERIFICADA | Acordar frescura, procedencia y cuestionario, y validar demo en el equipo final | [Informe J05](reports/J05-integration-and-ux-review.md) | Pendiente de revisión |
+| L11 | PRESENTACIÓN VERIFICADA · P0 PENDIENTE DE ACUERDO | Mauricio y líder deben confirmar la política de antigüedad y la procedencia verificable de alertas | [Informe L11](reports/L11-consistency-report.md) | Pendiente de revisión |
 
 Estados técnicos: NO INICIADO, EN CURSO, IMPLEMENTADO, VERIFICADO, BLOQUEADO y PENDIENTE DE VALIDACIÓN. IMPLEMENTADO registra código con validaciones pendientes. VERIFICADO exige evidencia de pruebas esenciales. En revisión humana, registra sin revisión, pendiente de revisión o aprobado con evidencia explícita.
 
