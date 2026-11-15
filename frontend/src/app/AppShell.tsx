@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 
-import { astronautDetailPath, hrefFor, sections } from './navigation'
+import { astronautDetailPath, hrefFor, readDetailId, sections } from './navigation'
 
 interface AppShellProps {
   route: string
@@ -24,7 +24,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
     }
   }, [route])
 
-  const activeSection = route === astronautDetailPath ? '/tripulacion' : route
+  const activeSection = route === astronautDetailPath || readDetailId(route) !== null ? '/tripulacion' : route
 
   return (
     <Box sx={{ minHeight: '100svh' }}>
