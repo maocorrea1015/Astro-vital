@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import type { createAstronautApi } from '../services/api/astronauts'
 import { ApiError } from '../services/api/client'
 
-export type CrewApi = Pick<ReturnType<typeof createAstronautApi>, 'listAstronauts' | 'getAstronautStatus'>
+export type CrewApi = Pick<ReturnType<typeof createAstronautApi>, 'listAstronauts' | 'getAstronautStatus' | 'getAstronautReadings'>
 
 export type CrewQuery<T> =
   | { kind: 'loading' }
