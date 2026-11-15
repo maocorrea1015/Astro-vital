@@ -7,7 +7,7 @@ import type { ReactNode } from 'react'
 
 import { PwaControls } from '../pwa/PwaControls'
 import { useBrowserOnline } from '../pwa/useBrowserOnline'
-import { astronautDetailPath, hrefFor, monitoringPath, readDetailId, readMonitoringId, sections } from './navigation'
+import { astronautDetailPath, hrefFor, monitoringPath, pageHeadingId, readDetailId, readMonitoringId, sections } from './navigation'
 
 interface AppShellProps {
   route: string
@@ -20,6 +20,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
   const heading = useRef<HTMLHeadingElement>(null)
   const focusRoute = readMonitoringId(route) === null ? route : monitoringPath
   const previousRoute = useRef(focusRoute)
+  const previousOnline = useRef(browserOnline)
 
   useEffect(() => {
     if (previousRoute.current !== focusRoute) {
@@ -31,6 +32,14 @@ export function AppShell({ route, title, children }: AppShellProps) {
   const activeSection = route === astronautDetailPath || readDetailId(route) !== null ? '/tripulacion' : focusRoute
 
   const needsData = activeSection === '/tripulacion' || activeSection === monitoringPath
+
+  useEffect(() => {
+    if (previousOnline.current && !browserOnline && needsData && document.activeElement === document.body) {
+      // Unmounting a data view can remove the focused control.
+      heading.current?.focus()
+    }
+    previousOnline.current = browserOnline
+  }, [browserOnline, needsData])
 
   return (
     <Box sx={{ minHeight: '100svh' }}>
@@ -102,6 +111,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
                       borderRadius: 1,
                       bgcolor: active ? 'background.paper' : 'transparent',
                       fontWeight: active ? 750 : 500,
+                      overflowWrap: 'anywhere',
                       '&:hover': { textDecoration: 'underline' },
                       '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
                     }}
@@ -113,15 +123,16 @@ export function AppShell({ route, title, children }: AppShellProps) {
             })}
           </Box>
         </Box>
-        <Box component="main" id="contenido" aria-labelledby="page-heading">
+        <Box component="main" id="contenido" aria-labelledby={pageHeadingId}>
           <Typography
             component="h1"
             variant="h1"
-            id="page-heading"
+            id={pageHeadingId}
             ref={heading}
             tabIndex={-1}
             sx={{
               fontSize: { xs: '2rem', sm: '3rem' },
+              overflowWrap: 'anywhere',
               mb: 2,
               '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
             }}
