@@ -12,7 +12,7 @@ L00 inspeccionó `feature/frontend-foundation` en `6e3109e`. La base frontend co
 | L06 | IMPLEMENTADO Y VERIFICADO LOCALMENTE | Lanzamiento standalone interactivo y entorno de demo pendientes | [Informe L06](reports/L06-report.md) | Pendiente de revisión |
 | L07 | VERIFICADO LOCALMENTE | Flask autenticado y apertura standalone pendientes | [Informe L07](reports/L07-report.md) | Pendiente de revisión |
 | L08 | ENSAYO LOCAL Y FLASK AISLADO VERIFICADOS | Acceso autenticado compartido y configuración de producción pendientes | [Informe L08](reports/L08-report.md) · [Informe L08-I](reports/L08-I-connection-report.md) | Pendiente de revisión |
-| L09 | PENDIENTE DE VALIDACIÓN | Alcance y aprobación médica | Sin informe | Sin revisión |
+| L09 | L09-A VERIFICADO LOCALMENTE | L09-B pendiente de aprobación médica y alcance | [Informe L09-A](reports/L09-A-report.md) | Pendiente de revisión |
 
 Estados técnicos: NO INICIADO, EN CURSO, IMPLEMENTADO, VERIFICADO, BLOQUEADO y PENDIENTE DE VALIDACIÓN. IMPLEMENTADO registra código con validaciones pendientes. VERIFICADO exige evidencia de pruebas esenciales. En revisión humana, registra sin revisión, pendiente de revisión o aprobado con evidencia explícita.
 
