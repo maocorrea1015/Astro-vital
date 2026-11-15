@@ -24,6 +24,7 @@ const views: Record<string, { title: string; description: string } | undefined> 
 }
 
 const defaultCrewApi = createAstronautApi({
+  protectedPathPrefix: import.meta.env.VITE_PROTECTED_PATH_PREFIX || undefined,
   localAnonymousReads: import.meta.env.DEV && import.meta.env.VITE_LOCAL_ANONYMOUS_READ === 'true',
 })
 

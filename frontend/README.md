@@ -52,6 +52,10 @@ Para consultar la guía técnica completa de arquitectura, contratos y convencio
 
 ## Puesta en Marcha Rápida
 
+### Contenedor
+
+El [Dockerfile](Dockerfile) construye la PWA y la sirve con Nginx en el puerto `8080`. Para ejecutar el frontend integrado con el backend y el simulador, consulta [los comandos de Docker Compose](../docker/README.md). Desde la raíz puedes construir solo su imagen con `docker build -t astro-vital-frontend ./FrontEnd`.
+
 ### 1. Requisitos Previos
 * **Node.js** v18 o superior.
 * Gestor de paquetes **npm** o **pnpm**.

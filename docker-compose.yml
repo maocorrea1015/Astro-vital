@@ -1,0 +1,62 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    environment:
+      FLASK_ENV: production
+      SECRET_KEY: ${BACKEND_SECRET_KEY:-astro-vital-mvp-demo-secret}
+      DATABASE_PATH: /app/data/astra_health.db
+      ASTRA_API_KEY: ${ASTRA_API_KEY:-astro-vital-mvp-demo-ingest}
+      FRONTEND_API_KEY: ${FRONTEND_API_KEY:-astro-vital-mvp-demo-readonly}
+    volumes:
+      - backend-data:/app/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./FrontEnd
+      dockerfile: Dockerfile
+      args:
+        VITE_PROTECTED_PATH_PREFIX: /gateway
+    environment:
+      FRONTEND_API_KEY: ${FRONTEND_API_KEY:-astro-vital-mvp-demo-readonly}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - internal
+      - edge
+    ports:
+      - "8080:8080"
+
+  simulator:
+    build:
+      context: .
+      dockerfile: docker/simulator.Dockerfile
+    environment:
+      ASTRA_BACKEND_URL: http://backend:5000
+      ASTRA_API_KEY: ${ASTRA_API_KEY:-astro-vital-mvp-demo-ingest}
+      ASTRA_SIMULATOR_INTERVAL: ${ASTRA_SIMULATOR_INTERVAL:-5}
+      ASTRA_SIMULATOR_MODE: ${ASTRA_SIMULATOR_MODE:-normal}
+      ASTRA_ASTRONAUT_ID: ${ASTRA_ASTRONAUT_ID:-astro-01}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - internal
+
+volumes:
+  backend-data:
+
+networks:
+  internal:
+    internal: true
+  edge: {}

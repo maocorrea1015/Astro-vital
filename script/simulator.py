@@ -23,9 +23,6 @@ import time
 import math
 import random
 import argparse
-import hashlib
-import sqlite3
-from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
 try:
@@ -33,12 +30,6 @@ try:
 except ImportError:
     print("[Error] Se requiere la librería 'requests'. Instálela con: pip install requests")
     sys.exit(1)
-
-# Rutas del proyecto para detección automática de credenciales y base de datos
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
-BACKEND_DIR = PROJECT_ROOT / "Backend"
-DEFAULT_DB_PATH = BACKEND_DIR / "data" / "astra_health.db"
 
 # Códigos de color ANSI para salida en consola
 RESET   = "\033[0m"
@@ -50,42 +41,6 @@ BLUE    = "\033[94m"
 MAGENTA = "\033[95m"
 CYAN    = "\033[96m"
 WHITE   = "\033[97m"
-
-
-def get_or_create_api_key(db_path: Path, client_name: str = "esp32-simulator") -> str:
-    """Obtiene una clave de API activa de la base de datos o genera una nueva."""
-    # 1. Comprobar variable de entorno
-    env_key = os.getenv("ASTRA_API_KEY")
-    if env_key:
-        return env_key.strip()
-
-    # 2. Intentar buscar en la base de datos existente o registrar una clave de simulador
-    if db_path.exists():
-        try:
-            conn = sqlite3.connect(str(db_path))
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            # Buscar una clave activa existente
-            row = cursor.execute("SELECT id FROM api_keys WHERE activa = 1 LIMIT 1").fetchone()
-            if row:
-                # Si ya existen claves, generamos una clave conocida para el simulador y la guardamos
-                import secrets
-                raw_key = f"sim-{secrets.token_urlsafe(24)}"
-                key_hash = hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
-                now_ts = int(time.time())
-                cursor.execute(
-                    "INSERT INTO api_keys (key_hash, nombre_cliente, activa, creada_en) VALUES (?, ?, 1, ?)",
-                    (key_hash, client_name, now_ts),
-                )
-                conn.commit()
-                conn.close()
-                return raw_key
-            conn.close()
-        except Exception:
-            pass
-
-    # Fallback predeterminado si no se puede acceder a la base de datos
-    return "esp32_simulator_demo_token_key_2026"
 
 
 class AstronautTelemetryGenerator:
@@ -204,10 +159,10 @@ def main():
     parser = argparse.ArgumentParser(
         description="Simulador de telemetría ESP32 para ASTRA HEALTH Backend.",
     )
-    parser.add_argument("--host", default="http://localhost:5000", help="URL base del servidor Flask (default: http://localhost:5000)")
-    parser.add_argument("--api-key", default=None, help="Clave X-API-Key manual (si se omite, se detecta de la BD local)")
+    parser.add_argument("--host", default=os.getenv("ASTRA_BACKEND_URL", "http://localhost:5000"), help="URL base del servidor Flask (default: ASTRA_BACKEND_URL o http://localhost:5000)")
+    parser.add_argument("--api-key", default=None, help="Clave X-API-Key (por defecto lee ASTRA_API_KEY)")
     parser.add_argument("--astronaut-id", default="astro-01", help="Identificador del astronauta (default: astro-01)")
-    parser.add_argument("--interval", type=float, default=3.0, help="Intervalo en segundos entre transmisiones (default: 3.0)")
+    parser.add_argument("--interval", type=float, default=5.0, help="Intervalo en segundos entre transmisiones (default: 5.0)")
     parser.add_argument(
         "--mode",
         choices=["normal", "exercise", "tachycardia", "hypoxia", "hyperthermia", "radiation", "sensor_fault", "interactive"],
@@ -217,12 +172,15 @@ def main():
     parser.add_argument("--count", type=int, default=0, help="Número de paquetes a enviar (0 = infinito)")
     args = parser.parse_args()
 
+    if args.interval <= 0:
+        parser.error("--interval debe ser un número mayor que cero.")
+
     print_banner()
 
     # 1. Resolver API Key
-    api_key = args.api_key
+    api_key = (args.api_key or os.getenv("ASTRA_API_KEY", "")).strip()
     if not api_key:
-        api_key = get_or_create_api_key(DEFAULT_DB_PATH)
+        parser.error("Configure ASTRA_API_KEY o indique --api-key; no se usa una clave simulada insegura.")
 
     backend_url = f"{args.host.rstrip('/')}/api/readings"
     health_url  = f"{args.host.rstrip('/')}/api/health"
@@ -266,6 +224,7 @@ def main():
 
     try:
         while True:
+            cycle_started = time.monotonic()
             sent_count += 1
             readings = generator.generate_sample()
             payload = {
@@ -316,7 +275,9 @@ def main():
                 print(f"\n[✓] Transmisión finalizada tras {sent_count} paquetes.")
                 break
 
-            time.sleep(args.interval)
+            remaining = args.interval - (time.monotonic() - cycle_started)
+            if remaining > 0:
+                time.sleep(remaining)
 
     except KeyboardInterrupt:
         print(f"\n{YELLOW}[*] Simulación detenida por el operador.{RESET}")
