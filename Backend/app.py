@@ -111,6 +111,11 @@ def create_app(
     def handle_unauthorized(error: Any) -> Response:
         return jsonify({"error": "API key inválida o ausente"}), 401
 
+    @app.errorhandler(403)
+    def handle_forbidden(error: Any) -> Response:
+        msg = getattr(error, "description", "Acceso denegado: permisos insuficientes")
+        return jsonify({"error": msg}), 403
+
     @app.errorhandler(404)
     def handle_not_found(error: Any) -> Response:
         return jsonify({"error": "Recurso no encontrado"}), 404

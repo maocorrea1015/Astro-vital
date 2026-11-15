@@ -43,10 +43,10 @@ El siguiente diagrama detalla el flujo de información de extremo a extremo, des
 
 ```mermaid
 flowchart TB
-    subgraph HARDWARE["1. SUBSISTEMA EMBEBIDO & SENSORES (Modulo-ASTRA-VITAL)"]
+    subgraph HARDWARE["1. SUBSISTEMA EMBEBIDO Y SENSORES (Modulo-ASTRA-VITAL)"]
         direction TB
         subgraph WBU["Wearable Biomédico (ASTRA-WBU-01)"]
-            S_MAX["MAX30102 (SpO2 & FC)"]
+            S_MAX["MAX30102 (SpO2 y FC)"]
             S_ECG["AD8232 (ECG)"]
             S_TMP["MLX90614 (Temp Infrarroja)"]
             S_IMU["MPU6050 (Inercial / Movimiento)"]
@@ -64,25 +64,30 @@ flowchart TB
             ESP["ESP32 DevKit V1 (Dual Core 240MHz)"]
             OLED["Display OLED 0.96 in"]
             INA["Monitor de Energía INA219"]
-            ACT["Buzzer + Vibrador Háptico + LED RGB"]
+            ACT["Buzzer, Vibrador Háptico y LED RGB"]
             SD["MicroSD Data Logger SPI"]
         end
-        WBU -->|I2C / ADC / GPIO| ESP
-        EMU -->|I2C / UART / Ext. Int| ESP
-        ESP --> OLED & ACT & SD & INA
+        WBU -->|"I2C / ADC / GPIO"| ESP
+        EMU -->|"I2C / UART / Ext. Int"| ESP
+        ESP --> OLED
+        ESP --> ACT
+        ESP --> SD
+        ESP --> INA
     end
 
-    subgraph BACKEND_SYS["2. BACKEND TELEMÉTRICO & CLÍNICO (Backend/)"]
+    subgraph BACKEND_SYS["2. BACKEND TELEMÉTRICO Y CLÍNICO (Backend/)"]
         direction TB
         AUTH["Seguridad Perimetral (X-API-Key SHA-256 + Rate Limit)"]
-        VAL["Validador Estricto & Sanitizador Anti-XSS"]
-        RULES["Motor de Reglas Clínicas NASA HRP & Z-Score"]
-        SQL[(SQLite 3 con WAL Mode & Idempotencia UNIQUE)]
+        VAL["Validador Estricto y Sanitizador Anti-XSS"]
+        RULES["Motor de Reglas Clínicas NASA HRP y Z-Score"]
+        SQL[("SQLite 3 con WAL Mode e Idempotencia UNIQUE")]
         REST_API["API REST Flask 3.x (9 Endpoints)"]
         
-        ESP -->|HTTP POST /api/readings JSON (Wi-Fi/NTP)| AUTH
-        AUTH --> VAL --> SQL
-        VAL --> RULES --> SQL
+        ESP -->|"HTTP POST /api/readings JSON (Wi-Fi / NTP)"| AUTH
+        AUTH --> VAL
+        VAL --> SQL
+        VAL --> RULES
+        RULES --> SQL
         SQL --> REST_API
     end
 
@@ -93,8 +98,9 @@ flowchart TB
         SW["Service Worker (Caché Shell Offline)"]
         DASH["Dashboard: Tripulación, Métricas en Vivo, Alertas, Bitácora"]
         
-        REST_API -->|Consultas REST JSON Autenticadas| PWA
-        PWA --> MUI --> DASH
+        REST_API -->|"Consultas REST JSON Autenticadas"| PWA
+        PWA --> MUI
+        MUI --> DASH
         PWA --> SW
     end
 ```

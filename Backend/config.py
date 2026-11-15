@@ -66,6 +66,8 @@ class Config:
 
     # Cabeceras de seguridad
     ENABLE_HSTS: bool = os.getenv("ENABLE_HSTS", "false").lower() in ("true", "1", "yes")
+    # Habilitar consultas GET públicas para integración con frontend React en navegador/demo
+    ALLOW_ANONYMOUS_READ: bool = os.getenv("ALLOW_ANONYMOUS_READ", "true").lower() in ("true", "1", "yes")
     TESTING: bool = False
 
 
@@ -73,6 +75,7 @@ class DevelopmentConfig(Config):
     """Configuración específica para el entorno de desarrollo local."""
 
     DEBUG: bool = True
+    ALLOW_ANONYMOUS_READ: bool = True
 
 
 class TestingConfig(Config):
@@ -87,6 +90,7 @@ class TestingConfig(Config):
     # Tasa relajada para evitar colisiones accidentales en suites de prueba concurrentes
     RATE_LIMIT_MAX_REQUESTS: int = 1000
     RATE_LIMIT_WINDOW_SECONDS: int = 60
+    ALLOW_ANONYMOUS_READ: bool = False
 
 
 class ProductionConfig(Config):

@@ -50,11 +50,26 @@ def hash_api_key(api_key: str) -> str:
     return hashlib.sha256(api_key.encode("utf-8")).hexdigest()
 
 
+def check_key_permission(client_name: str, method: str) -> bool:
+    """Verifica si la API Key cuenta con permisos para el método HTTP solicitado.
+
+    Convención de roles por nombre de cliente:
+    - Nombres que contengan 'readonly', 'read_only' o 'browser': Solo autorizados para 'GET'.
+    - Nombres con 'sensor', 'esp32' o estándar: Operaciones de ingesta y lectura.
+    - Claves 'admin': Acceso total sin restricciones.
+    """
+    name = client_name.lower()
+    if ("readonly" in name or "read_only" in name or "browser" in name) and method != "GET":
+        return False
+    return True
+
+
 def require_api_key(f: Callable[..., Any]) -> Callable[..., Any]:
     """Decorador que exige una API Key válida enviada en la cabecera 'X-API-Key'.
 
     Verifica la existencia y vigencia de la clave en la tabla 'api_keys'.
     Actualiza la marca temporal 'ultimo_uso' si es válida y expone el nombre del cliente en g.
+    Admite modo de lectura anónima (ALLOW_ANONYMOUS_READ) para consultas GET del frontend.
 
     Args:
         f (Callable): Vista de endpoint a proteger.
@@ -64,21 +79,26 @@ def require_api_key(f: Callable[..., Any]) -> Callable[..., Any]:
 
     Raises:
         Retorna 401 Unauthorized si la clave es nula, vacía o inexistente en la base de datos.
-
-    Security Note:
-        Protege todos los endpoints operativos para garantizar que sólo hardware autorizado
-        (ESP32 con firmware firmado o App de Raspberry Pi) interactúe con el backend.
+        Retorna 403 Forbidden si la clave carece de permisos para el método HTTP invocado.
     """
     @wraps(f)
     def decorated_function(*args: Any, **kwargs: Any) -> Any:
-        # Extracción de la clave desde la cabecera estándar
+        # 1. Soporte de lectura anónima para desarrollo y frontend en navegador
+        if current_app.config.get("ALLOW_ANONYMOUS_READ", False) and request.method == "GET":
+            # Si el cliente no envió API Key pero la lectura anónima está permitida
+            if not request.headers.get("X-API-Key"):
+                g.client_name = "browser-anonymous"
+                g.api_key_hash = "anonymous-read-access"
+                return f(*args, **kwargs)
+
+        # 2. Extracción de la clave desde la cabecera estándar
         api_key = request.headers.get("X-API-Key")
         if not api_key:
             return jsonify({"error": "API key inválida o ausente"}), 401
 
         key_hash = hash_api_key(api_key.strip())
 
-        # Consulta parametrizada segura contra inyección SQL
+        # 3. Consulta parametrizada segura contra inyección SQL
         with get_db() as db:
             row = db.execute(
                 "SELECT id, nombre_cliente, activa FROM api_keys WHERE key_hash = ?",
@@ -88,6 +108,11 @@ def require_api_key(f: Callable[..., Any]) -> Callable[..., Any]:
             if row is None or row["activa"] != 1:
                 return jsonify({"error": "API key inválida o ausente"}), 401
 
+            # 4. Verificación de permisos diferenciados por ruta y método
+            client_name = row["nombre_cliente"]
+            if not check_key_permission(client_name, request.method):
+                return jsonify({"error": "Permisos insuficientes para esta operación"}), 403
+
             # Actualiza el registro de último uso de manera asíncrona dentro de la transacción
             db.execute(
                 "UPDATE api_keys SET ultimo_uso = ? WHERE id = ?",
@@ -95,7 +120,7 @@ def require_api_key(f: Callable[..., Any]) -> Callable[..., Any]:
             )
 
             # Inyecta los metadatos del cliente en el contexto de la petición actual
-            g.client_name = row["nombre_cliente"]
+            g.client_name = client_name
             g.api_key_hash = key_hash
 
         return f(*args, **kwargs)

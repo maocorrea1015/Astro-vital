@@ -69,21 +69,21 @@ flowchart TB
 
     subgraph Ground["Estación Base / Hábitat / Tierra"]
         API["Backend Flask ASTRA-HEALTH"]
-        DB[(SQLite WAL DB)]
+        DB[("SQLite WAL DB")]
         DASH["Ground Control Dashboard"]
     end
 
-    ModA -->|I2C / ADC / GPIO| CPU
-    ModB -->|I2C / UART / Ext. Int| CPU
-    INA -->|I2C| CPU
+    ModA -->|"I2C / ADC / GPIO"| CPU
+    ModB -->|"I2C / UART / Ext. Int"| CPU
+    INA -->|"I2C"| CPU
     CPU --> OLED
     CPU --> SD
     CPU --> ACT
-    PWR -.->|Alimentación Regulada| ModA
-    PWR -.->|Alimentación Regulada| ModB
-    PWR -.->|Alimentación Regulada| ModC
+    PWR -.->|"Alimentación Regulada"| ModA
+    PWR -.->|"Alimentación Regulada"| ModB
+    PWR -.->|"Alimentación Regulada"| ModC
 
-    CPU -->|Wi-Fi / HTTP REST JSON & MQTT| API
+    CPU -->|"Wi-Fi / HTTP REST JSON & MQTT"| API
     API --> DB
     API --> DASH
 ```
@@ -183,12 +183,12 @@ graph LR
     end
 
     subgraph PROCESAMIENTO["ADQUISICIÓN DIGITAL (ESP32)"]
-        SCD41 -->|I2C| ESP["ESP32 DevKit V1"]
-        BMP390 -->|I2C| ESP
-        SHT31 -->|I2C| ESP
-        PMSA -->|UART| ESP
-        SGP40 -->|I2C| ESP
-        GEIGER -->|Ext. Interrupt| ESP
+        SCD41 -->|"I2C"| ESP["ESP32 DevKit V1"]
+        BMP390 -->|"I2C"| ESP
+        SHT31 -->|"I2C"| ESP
+        PMSA -->|"UART"| ESP
+        SGP40 -->|"I2C"| ESP
+        GEIGER -->|"Ext. Interrupt"| ESP
     end
 ```
 
