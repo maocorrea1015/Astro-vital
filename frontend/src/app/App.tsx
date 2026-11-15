@@ -8,16 +8,13 @@ import { AlertsPage } from './AlertsPage'
 import { AssistancePage } from './AssistancePage'
 import { AstronautPage } from './AstronautPage'
 import { CrewPage } from './CrewPage'
+import { HomeIntro, HomePage } from './HomePage'
 import type { CrewApi } from './crewQuery'
 import { AppShell } from './AppShell'
 import { TelemetryPanel } from './TelemetryPanel'
 import { alertsPath, assistancePath, astronautDetailPath, hrefFor, monitoringPath, readAssistanceId, readDetailId, readMonitoringId, useRoute } from './navigation'
 
 const views: Record<string, { title: string; description: string } | undefined> = {
-  '/': {
-    title: 'Inicio',
-    description: 'Prototipo de monitoreo para la tripulación durante misiones espaciales prolongadas.',
-  },
   [astronautDetailPath]: {
     title: 'Detalle de astronauta',
     description: 'La selección de integrantes y sus datos se incorporarán con la integración de tripulación.',
@@ -30,6 +27,14 @@ const defaultCrewApi = createAstronautApi({
 
 export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
   const route = useRoute()
+  if (route === '/') {
+    return (
+      <AppShell route={route} title="Monitoreo de tripulación" renderHeading={(heading) => <HomeIntro heading={heading} />}>
+        <HomePage />
+      </AppShell>
+    )
+  }
+
   if (route === '/tripulacion') {
     return (
       <AppShell route={route} title="Tripulación">
