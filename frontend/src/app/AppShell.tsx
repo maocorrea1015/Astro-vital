@@ -13,11 +13,13 @@ interface AppShellProps {
   route: string
   title: string
   children: ReactNode
+  renderHeading?: (heading: ReactNode) => ReactNode
 }
 
-export function AppShell({ route, title, children }: AppShellProps) {
+export function AppShell({ route, title, children, renderHeading }: AppShellProps) {
   const browserOnline = useBrowserOnline()
   const heading = useRef<HTMLHeadingElement>(null)
+  const home = route === '/'
   const focusRoute = readMonitoringId(route) === null ? route : monitoringPath
   const previousRoute = useRef(focusRoute)
   const previousOnline = useRef(browserOnline)
@@ -46,6 +48,25 @@ export function AppShell({ route, title, children }: AppShellProps) {
     }
     previousOnline.current = browserOnline
   }, [browserOnline, needsData])
+
+  const pageTitle = (
+    <Typography
+      component="h1"
+      variant="h1"
+      id={pageHeadingId}
+      ref={heading}
+      tabIndex={-1}
+      sx={{
+        fontSize: home ? { xs: '2.15rem', sm: '3.25rem', md: '4rem' } : { xs: '2rem', sm: '3rem' },
+          letterSpacing: home ? '-0.04em' : undefined,
+        overflowWrap: 'anywhere',
+        mb: 2,
+        '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
+      }}
+    >
+      {title}
+    </Typography>
+  )
 
   return (
     <Box sx={{ minHeight: '100svh' }}>
@@ -82,9 +103,9 @@ export function AppShell({ route, title, children }: AppShellProps) {
         maxWidth="lg"
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '13rem minmax(0, 1fr)' },
-          gap: { xs: 3, md: 5 },
-          py: { xs: 2, md: 5 },
+          gridTemplateColumns: home ? 'minmax(0, 1fr)' : { xs: 'minmax(0, 1fr)', md: '13rem minmax(0, 1fr)' },
+          gap: home ? { xs: 2, md: 3 } : { xs: 3, md: 5 },
+          py: home ? { xs: 2, md: 3 } : { xs: 2, md: 5 },
         }}
       >
         <Box component="nav" aria-label="Navegación principal">
@@ -92,7 +113,9 @@ export function AppShell({ route, title, children }: AppShellProps) {
             component="ul"
             sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(5, minmax(0, 1fr))', md: '1fr' },
+              gridTemplateColumns: home
+                ? { xs: 'repeat(3, minmax(0, 1fr))', sm: 'repeat(5, max-content)' }
+                : { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(5, minmax(0, 1fr))', md: '1fr' },
               gap: 1,
               m: 0,
               p: 0,
@@ -112,12 +135,13 @@ export function AppShell({ route, title, children }: AppShellProps) {
                       display: 'flex',
                       alignItems: 'center',
                       minHeight: 44,
-                      px: { xs: 1.5, sm: 2 },
+                      px: { xs: home ? 0.75 : 1.5, sm: 2 },
                       py: 1,
                       borderRadius: 1,
                       bgcolor: active ? 'background.paper' : 'transparent',
                       fontWeight: active ? 750 : 500,
                       overflowWrap: 'anywhere',
+                      fontSize: home ? { xs: '0.875rem', sm: '1rem' } : undefined,
                       '&:hover': { textDecoration: 'underline' },
                       '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
                     }}
@@ -130,21 +154,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
           </Box>
         </Box>
         <Box component="main" id="contenido" aria-labelledby={pageHeadingId}>
-          <Typography
-            component="h1"
-            variant="h1"
-            id={pageHeadingId}
-            ref={heading}
-            tabIndex={-1}
-            sx={{
-              fontSize: { xs: '2rem', sm: '3rem' },
-              overflowWrap: 'anywhere',
-              mb: 2,
-              '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
-            }}
-          >
-            {title}
-          </Typography>
+          {renderHeading ? renderHeading(pageTitle) : pageTitle}
           {!browserOnline && (
             <Typography role="status" sx={{ mb: 2 }} color="warning.main">
               El navegador reporta que está sin conexión.
