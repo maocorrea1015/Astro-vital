@@ -24,8 +24,13 @@ const views: Record<string, { title: string; description: string } | undefined> 
 }
 
 const defaultCrewApi = createAstronautApi({
-  protectedPathPrefix: import.meta.env.MODE === 'educational-demo' ? '/demo' : undefined,
-  localAnonymousReads: import.meta.env.DEV && import.meta.env.VITE_LOCAL_ANONYMOUS_READ === 'true',
+  protectedPathPrefix:
+    import.meta.env.MODE === 'educational-demo'
+      ? '/demo'
+      : import.meta.env.VITE_PROTECTED_PATH_PREFIX || undefined,
+  localAnonymousReads:
+    import.meta.env.DEV &&
+    import.meta.env.VITE_LOCAL_ANONYMOUS_READ === 'true',
 })
 
 export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {

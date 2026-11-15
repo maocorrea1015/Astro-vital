@@ -193,6 +193,8 @@ Astro-vital/
 
 ## Guía de Puesta en Marcha Rápida
 
+Para ejecutar frontend, backend y simulador en contenedores, consulta [Docker Compose](docker/README.md).
+
 ### 1. Levantar el Backend (Servidor Central)
 ```bash
 # Navegar a la carpeta del backend

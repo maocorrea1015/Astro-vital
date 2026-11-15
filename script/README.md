@@ -12,7 +12,7 @@ Permite alimentar continuamente al backend Flask con telemetría en tiempo real 
 
 ## Características
 
-- **Sincronización Automática de API Key:** Detecta automáticamente una clave válida en la base de datos SQLite o crea una clave de simulador en el primer arranque.
+- **Autenticación:** Lee `ASTRA_API_KEY` del entorno o acepta `--api-key`. No consulta la base de datos del backend ni usa una clave por defecto.
 - **5 Variables Oficiales:** Frecuencia cardíaca (`heart_rate`), saturación de oxígeno (`spo2`), temperatura corporal (`temperature`), radiación ionizante (`radiation_cpm`) y aceleración/actividad (`activity`).
 - **Idempotencia y Sincronía NTP:** Emite marcas de tiempo UNIX estrictas en segundos (`ts = int(time.time())`).
 - **Simulación de Contingencias Médicas y Ambientales:**
@@ -39,7 +39,7 @@ Con el backend Flask corriendo (`python app.py` en `Backend/`), ejecuta:
 ```bash
 python script/simulator.py
 ```
-*El script comenzará a transmitir un paquete cada 3 segundos hacia `http://localhost:5000/api/readings`.*
+*El script comenzará a transmitir un paquete cada 5 segundos hacia `http://localhost:5000/api/readings`.*
 
 ### 3. Modos Avanzados de Simulación
 
@@ -74,7 +74,7 @@ python script/simulator.py --count 10
 | :--- | :--- | :--- |
 | `--host` | `http://localhost:5000` | URL del servidor Flask destino. |
 | `--astronaut-id` | `astro-01` | Identificador del tripulante. |
-| `--interval` | `3.0` | Segundos entre cada transmisión. |
+| `--interval` | `5.0` | Segundos entre cada transmisión. |
 | `--mode` | `normal` | Perfil clínico a simular. |
 | `--count` | `0` (infinito) | Límite de paquetes a despachar. |
-| `--api-key` | Automática | Forzar una clave `X-API-Key` específica. |
+| `--api-key` | `ASTRA_API_KEY` | Clave `X-API-Key`; requerida y sin fallback por defecto. |
