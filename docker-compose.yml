@@ -22,7 +22,7 @@ services:
 
   frontend:
     build:
-      context: ./FrontEnd
+      context: ./frontend
       dockerfile: Dockerfile
       args:
         VITE_PROTECTED_PATH_PREFIX: /gateway
