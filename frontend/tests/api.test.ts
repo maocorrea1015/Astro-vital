@@ -203,3 +203,29 @@ test('mantiene el acceso al histórico desactivado por defecto y distingue vací
   const failed = createAstronautApi({ ...options, fetchImpl: async () => new Response(null, { status: 500 }) })
   await assert.rejects(failed.getAstronautReadings('astro-01'), apiError('server', 500))
 })
+
+test('la lectura local optativa usa /api sin prefijo ni credenciales únicamente en loopback', async (t) => {
+  const location = { hostname: '127.0.0.1', origin: 'http://127.0.0.1:5173' }
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'location')
+  Object.defineProperty(globalThis, 'location', { value: location, configurable: true })
+  t.after(() => {
+    if (original) Object.defineProperty(globalThis, 'location', original)
+    else Reflect.deleteProperty(globalThis, 'location')
+  })
+  let count = 0
+  const api = createAstronautApi({
+    localAnonymousReads: true,
+    fetchImpl: async (url, init) => {
+      count++
+      assert.equal(url, 'http://127.0.0.1:5173/api/astronauts')
+      assert.equal(init?.credentials, 'omit')
+      assert.equal(new Headers(init?.headers).has('X-API-Key'), false)
+      return json([astronaut])
+    },
+  })
+  assert.equal((await api.listAstronauts())[0].id, astronaut.astronaut_id)
+  location.hostname = 'example.test'
+  location.origin = 'https://example.test'
+  await assert.rejects(api.listAstronauts(), apiError('access-unconfigured'))
+  assert.equal(count, 1)
+})

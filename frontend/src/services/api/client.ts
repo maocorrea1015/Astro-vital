@@ -48,6 +48,8 @@ export interface ApiClientOptions {
   publicBaseUrl?: string
   /** Same-origin path prefix, only after an authenticated gateway has been agreed. */
   protectedPathPrefix?: string
+  /** Explicit opt-in for an isolated Vite development server. */
+  localAnonymousReads?: boolean
   timeoutMs?: number
   fetchImpl?: typeof fetch
 }
@@ -108,7 +110,7 @@ async function responseError(response: Response): Promise<ApiError> {
 }
 
 export function createApiClient({
-  publicBaseUrl, protectedPathPrefix, timeoutMs = 10_000, fetchImpl = globalThis.fetch.bind(globalThis),
+  publicBaseUrl, protectedPathPrefix, localAnonymousReads = false, timeoutMs = 10_000, fetchImpl = globalThis.fetch.bind(globalThis),
 }: ApiClientOptions = {}) {
   const publicBase = parsePublicBase(publicBaseUrl)
   if (
@@ -121,7 +123,7 @@ export function createApiClient({
   const inFlight = new Map<string, Promise<unknown>>()
   const retryNotBefore = { public: 0, protected: 0 }
 
-  async function request(url: string, { access, signal }: GetOptions): Promise<unknown> {
+  async function request(url: string, { access, signal }: GetOptions, credentials: RequestCredentials): Promise<unknown> {
     if (signal?.aborted) throw new ApiError('cancelled')
     const waitMs = retryNotBefore[access] - Date.now()
     if (waitMs > 0) throw new ApiError('rate-limited', 429, Math.ceil(waitMs / 1000))
@@ -140,7 +142,7 @@ export function createApiClient({
     try {
       const response = await fetchImpl(url, {
         headers: { Accept: 'application/json' },
-        credentials: access === 'protected' ? 'same-origin' : 'omit',
+        credentials,
         cache: 'no-store',
         redirect: 'error',
         signal: controller.signal,
@@ -172,21 +174,26 @@ export function createApiClient({
 
   async function get<T>(path: string, decode: Decoder<T>, options: GetOptions): Promise<T> {
     if (!/^\/api\/[a-zA-Z0-9_/-]+$/.test(path)) throw new ApiError('invalid-request')
-    if (options.access === 'protected' && protectedPathPrefix === undefined) {
+    const location = globalThis.location
+    const protectedRead = options.access === 'protected'
+    const localRead = protectedRead && protectedPathPrefix === undefined && localAnonymousReads
+      && ['127.0.0.1', 'localhost', '[::1]'].includes(location?.hostname ?? '')
+    if (protectedRead && protectedPathPrefix === undefined && !localRead) {
       throw new ApiError('access-unconfigured')
     }
     // Anchor protected calls to the document's origin, independently of any base element.
     const base = options.access === 'protected'
-      ? `${globalThis.location?.origin ?? ''}${protectedPathPrefix}`
+      ? `${location?.origin ?? ''}${protectedPathPrefix ?? ''}`
       : publicBase
     const url = `${base}${path}`
-    if (options.signal) return decode(await request(url, options))
+    const credentials = protectedRead && !localRead ? 'same-origin' : 'omit'
+    if (options.signal) return decode(await request(url, options, credentials))
 
     // Independent cancellation must never abort another caller's request.
     const key = `${options.access}:${url}`
     let pending = inFlight.get(key)
     if (!pending) {
-      pending = request(url, options).finally(() => inFlight.delete(key))
+      pending = request(url, options, credentials).finally(() => inFlight.delete(key))
       inFlight.set(key, pending)
     }
     return decode(await pending)
