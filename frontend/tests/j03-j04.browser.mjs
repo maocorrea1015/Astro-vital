@@ -69,8 +69,8 @@ try {
       if (path.endsWith('/astronauts')) return route.fulfill({ json: crew })
       const isA = path.includes('/demo-a/')
       if (path.endsWith('/readings')) return route.fulfill({ json: isA ? [] : readings })
-      if (isA) {
-        await new Promise((resolve) => setTimeout(resolve, 200))
+      if (isA && new URL(page.url()).hash.startsWith('#/alertas')) {
+        await new Promise((resolve) => setTimeout(resolve, 1000))
         if (++statusCallsA === 1) return route.fulfill({ status: 500 })
       }
       return route.fulfill({ json: {
@@ -81,8 +81,11 @@ try {
 
     const nav = page.getByRole('navigation', { name: 'Navegación principal' })
     const link = (name) => nav.getByRole('link', { name, exact: true })
-    const choose = (id) => page.getByRole('combobox', { name: 'Astronauta', exact: true }).selectOption(id)
+    const roster = page.getByRole('list', { name: 'Astronautas disponibles' })
+    const astronaut = (id) => roster.getByRole('button', { name: new RegExp(id) })
+    const choose = (id) => astronaut(id).click()
     const visible = (text) => page.getByText(text, { exact: true }).first().waitFor()
+    const titleAlertas = () => page.getByRole('heading', { name: 'Alertas', level: 1, exact: true }).waitFor()
     const noOverflow = async () => assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), width)
 
     await page.goto(base + '#/')
@@ -99,9 +102,10 @@ try {
     await choose('demo-a')
     await visible('No hay lecturas disponibles en este intervalo.')
     await choose('demo-b')
-    await page.getByRole('heading', { name: 'Evolución temporal · Radiación' }).waitFor()
+    await page.getByRole('button', { name: 'Actividad', exact: true }).click()
     await visible('No hay muestras utilizables para trazar una línea de tendencia.')
     const tables = page.getByRole('button', { name: 'Visualizar como tabla de datos accesible' })
+    await page.getByRole('button', { name: 'Radiación', exact: true }).click()
     await tables.first().focus()
     await page.keyboard.press('Enter')
     const table = page.getByRole('table')
@@ -116,14 +120,15 @@ try {
     await noOverflow()
 
     await link('Asistencia').click()
-    assert.equal(await page.getByRole('combobox', { name: 'Astronauta', exact: true }).inputValue(), 'demo-b')
+    assert.equal(await astronaut('demo-b').getAttribute('aria-pressed'), 'true')
     await page.getByRole('button', { name: 'Confirmar astronauta' }).click()
     await visible('El cuestionario de asistencia está pendiente de validación médica')
 
     await link('Alertas').click()
+    await titleAlertas()
     await choose('demo-a')
-    await visible('Cargando alertas…')
-    await visible('No se pudieron cargar las alertas.')
+    await visible('Consultando las alertas activas…')
+    await visible('No se pudo consultar las alertas activas.')
     await page.getByRole('button', { name: 'Reintentar' }).click()
     await visible('No hay alertas disponibles.')
     await choose('demo-b')
@@ -137,9 +142,10 @@ try {
     await page.keyboard.press('Enter')
     const list = page.getByRole('list', { name: 'Lista de alertas' })
     assert.equal(await list.getByRole('listitem').count(), 1)
-    assert.match(await list.innerText(), /Estado crítico/)
-    assert.match(await list.innerText(), /pendiente de validación/)
-    assert.doesNotMatch(await list.innerText(), /Texto sin aprobación|Guía sin aprobación/)
+    const alertDetail = page.getByRole('region', { name: 'Detalle del aviso', exact: true })
+    assert.match(await alertDetail.innerText(), /Estado crítico/)
+    assert.match(await alertDetail.innerText(), /pendiente de validación/)
+    assert.doesNotMatch(await alertDetail.innerText(), /Texto sin aprobación|Guía sin aprobación/)
     assert.equal(await page.getByRole('button', { name: /reconocer alerta/i }).count(), 0)
     assert.equal(await page.getByRole('button', { name: 'Informativas', exact: true }).count(), 0)
     await noOverflow()

@@ -6,6 +6,16 @@ export const pageHeadingId = 'page-heading'
 
 export const alertsPath = '/alertas'
 
+export function alertsPathFor(id: string) {
+  return alertsPath + '/' + encodeURIComponent(id)
+}
+
+export function readAlertsId(route: string): string | null {
+  const prefix = alertsPath + '/'
+  const id = route.startsWith(prefix) ? route.slice(prefix.length) : ''
+  return isAstronautId(id) ? id : null
+}
+
 export const assistancePath = '/asistencia'
 
 export const monitoringPath = '/monitoreo'

@@ -1,12 +1,15 @@
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { useCallback } from 'react'
+import { useState } from 'react'
 
-import { CrewView } from '../features/crew/components'
-import { toCrewMember } from './telemetryPresentation'
-import { detailPathFor, hrefFor } from './navigation'
-import { useCrewQuery, type CrewApi, type CrewQuery } from './crewQuery'
+import type { Astronaut } from '../services/api/adapters'
+import type { Variable } from '../services/api/contracts'
+import { variables } from './telemetryPresentation'
+import { alertsPathFor, detailPathFor, hrefFor, monitoringPathFor } from './navigation'
+import type { CrewApi, CrewQuery } from './crewQuery'
+import { MissionFigure } from './MissionFigure'
+import { AssistanceLink, AstronautSelector, MetricRing, MissionEmpty, MissionIdentity, MissionPanel, missionMetrics, useMissionCrew, useMissionStatus, type MissionSelection } from './MissionModules'
 
 export function QueryFeedback({
   result,
@@ -35,23 +38,62 @@ export function QueryFeedback({
   )
 }
 
-export function CrewPage({ api }: { api: CrewApi }) {
-  const load = useCallback((signal: AbortSignal) => api.listAstronauts(signal), [api])
-  const { result, retry } = useCrewQuery(load)
-
-  if (result.kind === 'unconfigured') {
-    return <QueryFeedback result={result} subject="la tripulación" retry={retry} />
-  }
-
+export function CrewPage({ api, selectedId, onSelect }: MissionSelection) {
+  const catalog = useMissionCrew(api, selectedId)
+  const [metric, setMetric] = useState<Variable>('heart_rate')
+  const selected = catalog.selected
+  const online = catalog.crew.filter((item) => item.connection === 'online').length
   return (
-    <CrewView
-      crew={result.kind === 'ready' ? result.data.map(toCrewMember) : []}
-      isLoading={result.kind === 'loading'}
-      errorMessage={result.kind === 'error'
-        ? (result.notFound ? 'El catálogo solicitado no está disponible.' : 'No se pudo consultar la tripulación.')
-        : null}
-      onRetry={result.kind === 'error' && !result.notFound ? retry : undefined}
-      onSelect={(id) => { window.location.hash = hrefFor(detailPathFor(id)) }}
-    />
+    <div className="module-workspace">
+      <div className="module-toolbar">
+        <p>Consulta el estado reportado y las últimas mediciones.</p>
+        {catalog.result.kind === 'ready' && <div className="module-counts">
+          <span>Total: {catalog.crew.length}</span><span>En línea: {online}</span><span>Sin conexión: {catalog.crew.length - online}</span>
+        </div>}
+      </div>
+      <div className="module-columns crew-layout">
+        <MissionPanel title="Astronautas de la misión" icon="◎">
+          {catalog.result.kind !== 'ready' ? <QueryFeedback result={catalog.result} subject="la tripulación" retry={catalog.retry} />
+            : catalog.crew.length ? <AstronautSelector crew={catalog.crew} selectedId={selected?.id} onSelect={onSelect} />
+            : <MissionEmpty title="No hay astronautas disponibles"><Button onClick={catalog.retry}>Reintentar</Button></MissionEmpty>}
+        </MissionPanel>
+        <MissionPanel title="Mapa de telemetría" icon="⌖" className="module-map">
+          <MissionFigure metric={metric} onSelect={setMetric} />
+          <p className="module-map-label" aria-live="polite">{variables[metric]}</p>
+        </MissionPanel>
+        <MissionPanel title="Perfil del astronauta" icon="◉">
+          {selected ? <CrewProfile key={selected.id} api={api} astronaut={selected} metric={metric} onMetric={setMetric} />
+            : <MissionEmpty title="Selecciona un astronauta">Su estado y sus lecturas aparecerán aquí.</MissionEmpty>}
+        </MissionPanel>
+      </div>
+      <div className="module-actions"><strong>Acciones rápidas</strong>
+        {selected && <>
+          <a className="module-action" href={hrefFor(monitoringPathFor(selected.id))}>Ver monitoreo</a>
+          <a className="module-action" href={hrefFor(alertsPathFor(selected.id))}>Ver alertas</a>
+        </>}
+        <AssistanceLink id={selected?.id} />
+      </div>
+    </div>
+  )
+}
+
+function CrewProfile({ api, astronaut, metric, onMetric }: {
+  api: CrewApi; astronaut: Astronaut; metric: Variable; onMetric: (value: Variable) => void
+}) {
+  const query = useMissionStatus(api, astronaut.id)
+  const status = query.result.kind === 'ready' ? query.result.data : undefined
+  return (
+    <>
+      <MissionIdentity astronaut={astronaut} status={status} />
+      {query.result.kind !== 'ready' && <QueryFeedback result={query.result} subject="el estado del astronauta" retry={query.retry} />}
+      <h3 className="module-subtitle">Indicadores clave · última muestra</h3>
+      <div className="module-rings">
+        {missionMetrics.map((variable) => <MetricRing key={variable} variable={variable}
+          reading={status?.readings.find((reading) => reading.variable === variable)} active={metric === variable} onSelect={() => onMetric(variable)} />)}
+      </div>
+      <div className="module-footer-line"><small>Antigüedad sin clasificar · Procedencia no informada</small>
+        <a href={hrefFor(detailPathFor(astronaut.id))}>Ver detalle</a>
+      </div>
+    </>
   )
 }

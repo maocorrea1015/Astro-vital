@@ -2,17 +2,19 @@ import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useEffect, useState } from 'react'
 
 import { createAstronautApi } from '../services/api/astronauts'
 import { AlertsPage } from './AlertsPage'
 import { AssistancePage } from './AssistancePage'
 import { AstronautPage } from './AstronautPage'
 import { CrewPage } from './CrewPage'
-import { HomeIntro, HomePage } from './HomePage'
+import { HomePage } from './HomePage'
+import type { AssistanceSession } from './assistanceSession'
 import type { CrewApi } from './crewQuery'
 import { AppShell } from './AppShell'
 import { TelemetryPanel } from './TelemetryPanel'
-import { alertsPath, assistancePath, astronautDetailPath, hrefFor, monitoringPath, readAssistanceId, readDetailId, readMonitoringId, useRoute } from './navigation'
+import { alertsPath, alertsPathFor, assistancePath, assistancePathFor, astronautDetailPath, hrefFor, monitoringPath, monitoringPathFor, readAlertsId, readAssistanceId, readDetailId, readMonitoringId, useRoute } from './navigation'
 
 const views: Record<string, { title: string; description: string } | undefined> = {
   [astronautDetailPath]: {
@@ -27,10 +29,25 @@ const defaultCrewApi = createAstronautApi({
 
 export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
   const route = useRoute()
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [session, setSession] = useState<AssistanceSession | null>(null)
+  const hasAnswers = Boolean(session?.answers.size)
+  const routeId = readDetailId(route) ?? readMonitoringId(route) ?? readAlertsId(route) ?? readAssistanceId(route)
+  useEffect(() => { if (routeId) setSelectedId(routeId) }, [routeId])
+
+  useEffect(() => {
+    if (!hasAnswers) return
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = true
+    }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [hasAnswers])
   if (route === '/') {
     return (
-      <AppShell route={route} title="Monitoreo de tripulación" renderHeading={(heading) => <HomeIntro heading={heading} />}>
-        <HomePage />
+      <AppShell route={route} title="Centro de control de salud">
+        <HomePage api={crewApi} selectedId={selectedId} onSelect={setSelectedId} />
       </AppShell>
     )
   }
@@ -38,7 +55,7 @@ export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
   if (route === '/tripulacion') {
     return (
       <AppShell route={route} title="Tripulación">
-        <CrewPage api={crewApi} />
+        <CrewPage api={crewApi} selectedId={selectedId} onSelect={setSelectedId} />
       </AppShell>
     )
   }
@@ -56,16 +73,17 @@ export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
   if (route === monitoringPath || monitoringId !== null) {
     return (
       <AppShell route={route} title="Monitoreo">
-        <TelemetryPanel api={crewApi} id={monitoringId} />
+        <TelemetryPanel api={crewApi} id={monitoringId} selectedId={selectedId} onSelect={(id) => { setSelectedId(id); location.hash = hrefFor(monitoringPathFor(id)) }} />
       </AppShell>
     )
   }
 
 
-  if (route === alertsPath) {
+  const alertsId = readAlertsId(route)
+  if (route === alertsPath || alertsId !== null) {
     return (
       <AppShell route={route} title="Alertas">
-        <AlertsPage api={crewApi} />
+        <AlertsPage api={crewApi} id={alertsId} selectedId={selectedId} onSelect={(id) => { setSelectedId(id); location.hash = hrefFor(alertsPathFor(id)) }} />
       </AppShell>
     )
   }
@@ -74,7 +92,7 @@ export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
   if (route === assistancePath || assistanceId !== null) {
     return (
       <AppShell route={route} title="Asistencia">
-        <AssistancePage key={assistanceId ?? assistancePath} api={crewApi} initialId={assistanceId} />
+        <AssistancePage key={assistanceId ?? assistancePath} api={crewApi} initialId={assistanceId} selectedId={selectedId} onSelect={(id) => { setSelectedId(id); location.hash = hrefFor(assistancePathFor(id)) }} session={session} onSessionChange={setSession} />
       </AppShell>
     )
   }

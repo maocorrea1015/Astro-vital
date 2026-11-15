@@ -1,118 +1,69 @@
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Link from '@mui/material/Link'
-import Paper from '@mui/material/Paper'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { AssistanceQuestionnaire } from './AssistanceQuestionnaire'
 import { QueryFeedback } from './CrewPage'
 import { approvedAssistanceQuestions } from './assistanceContent'
 import { startAssistanceSession, type AssistanceSession } from './assistanceSession'
-import { useCrewQuery, type CrewApi } from './crewQuery'
+import { AstronautSelector, MissionEmpty, MissionIdentity, MissionPanel, useMissionCrew, type MissionSelection } from './MissionModules'
+import { MissionFigure } from './MissionFigure'
 import { detailPathFor, hrefFor } from './navigation'
 
-export function AssistancePage({ api, initialId }: { api: CrewApi; initialId: string | null }) {
-  const load = useCallback((signal: AbortSignal) => api.listAstronauts(signal), [api])
-  const { result, retry } = useCrewQuery(load)
-  const [selectedId, setSelectedId] = useState(initialId ?? '')
-  const [session, setSession] = useState<AssistanceSession | null>(null)
-  const confirmation = useRef<HTMLHeadingElement>(null)
-  const selected = result.kind === 'ready' ? result.data.find(({ id }) => id === selectedId) : undefined
-  const confirmed = Boolean(selected && session?.astronautId === selected.id)
+export function AssistancePage({ api, initialId, selectedId, onSelect, session, onSessionChange }: MissionSelection & {
+  initialId: string | null; session: AssistanceSession | null; onSessionChange: (session: AssistanceSession | null) => void
+}) {
+  const catalog = useMissionCrew(api, initialId ?? selectedId ?? session?.astronautId ?? null)
+  const selected = catalog.selected
+  const confirmed = !!selected && session?.astronautId === selected.id
   const hasQuestions = approvedAssistanceQuestions.length > 0
-  const returnId = selected?.id ?? (result.kind !== 'ready' ? initialId : null)
+  const [promptTarget, setPromptTarget] = useState<HTMLDivElement | null>(null)
+  const [actionTarget, setActionTarget] = useState<HTMLDivElement | null>(null)
+  const confirmation = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
     if (confirmed && !hasQuestions) confirmation.current?.focus()
   }, [confirmed, hasQuestions])
 
   return (
-    <Stack spacing={3} sx={{ maxWidth: '66ch', overflowWrap: 'anywhere' }}>
-      {result.kind !== 'ready' ? (
-        <QueryFeedback result={result} subject="la tripulación" retry={retry} />
-      ) : result.data.length === 0 ? (
-        <Typography role="status">No hay astronautas disponibles para asistencia.</Typography>
-      ) : (
-        <Stack spacing={2} sx={{ alignItems: 'flex-start' }}>
-          <Box sx={{ width: '100%', maxWidth: '28rem' }}>
-            <Typography component="label" htmlFor="assistance-astronaut" sx={{ display: 'block', mb: 1 }}>
-              Astronauta
-            </Typography>
-            <Box
-              component="select"
-              id="assistance-astronaut"
-              value={selected?.id ?? ''}
-              disabled={confirmed}
-              onChange={(event) => {
-                setSelectedId(event.currentTarget.value)
-                setSession(null)
-              }}
-              sx={{
-                width: '100%', minHeight: 44, px: 1.5, font: 'inherit',
-                color: 'text.primary', bgcolor: 'background.paper', colorScheme: 'dark',
-                border: 1, borderColor: 'divider', borderRadius: 1,
-                '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
-              }}
-            >
-              <option value="">Seleccionar astronauta</option>
-              {result.data.map(({ id, name }) => (
-                <option key={id} value={id}>{name ? `${name} · ${id}` : id}</option>
-              ))}
-            </Box>
-          </Box>
-          {selectedId && !selected && <Typography role="status">El astronauta seleccionado no está en el catálogo.</Typography>}
-          <Button
-            variant="outlined"
-            disabled={!selected || confirmed}
-            onClick={() => { if (selected) setSession(startAssistanceSession(selected.id)) }}
-          >
-            {hasQuestions ? 'Iniciar sesión' : 'Confirmar astronauta'}
-          </Button>
-        </Stack>
-      )}
-
-      <Paper component="section" variant="outlined" aria-labelledby="assistance-status" sx={{ p: { xs: 2, sm: 3 } }}>
-        <Typography
-          ref={confirmation}
-          id="assistance-status"
-          component="h2"
-          variant="h6"
-          tabIndex={-1}
-          sx={{ '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }}
-        >
-          {confirmed ? `Astronauta confirmado: ${selected?.name || selected?.id}` : 'Disponibilidad de asistencia'}
-        </Typography>
-        <Stack spacing={2} sx={{ mt: 1 }}>
-          {hasQuestions ? (
-            confirmed && session ? (
-              <AssistanceQuestionnaire session={session} questions={approvedAssistanceQuestions} onChange={setSession} />
-            ) : (
-              <Typography color="text.secondary">Selecciona un astronauta para iniciar.</Typography>
-            )
-          ) : (
-            <Typography color="text.secondary">El cuestionario de asistencia está pendiente de validación médica</Typography>
-          )}
-          {confirmed && (
-            <Box>
-              <Button
-                onClick={() => {
-                  setSession(null)
-                  confirmation.current?.focus()
-                }}
-              >
-                Cancelar sesión
-              </Button>
-            </Box>
-          )}
-        </Stack>
-      </Paper>
-
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        {returnId && <Link href={hrefFor(detailPathFor(returnId))}>Volver al detalle</Link>}
-        <Link href={hrefFor('/tripulacion')}>Volver a tripulación</Link>
-      </Stack>
-    </Stack>
+    <div className="module-workspace">
+      <div className="module-toolbar">
+        <p>Selecciona el astronauta para preparar una sesión de asistencia.</p>
+        {!hasQuestions && <p className="module-notice">El cuestionario de asistencia está pendiente de validación médica</p>}
+      </div>
+      <div className="module-columns assist-layout">
+        <MissionPanel title="Selecciona al astronauta" icon="◎">
+          {catalog.result.kind !== 'ready' ? <QueryFeedback result={catalog.result} subject="la tripulación" retry={catalog.retry} />
+            : catalog.crew.length ? <AstronautSelector crew={catalog.crew} selectedId={selected?.id} disabled={confirmed} onSelect={onSelect} />
+            : <MissionEmpty title="No hay astronautas disponibles para asistencia." />}
+          {selected && <MissionIdentity astronaut={selected} />}
+          {initialId && !selected && catalog.result.kind === 'ready' && <p role="status">El astronauta seleccionado no está en el catálogo.</p>}
+        </MissionPanel>
+        <MissionPanel title="Asistencia guiada" icon="⌖" className="module-map assist-map">
+          {hasQuestions && <div ref={setPromptTarget} className="module-question-prompt" />}
+          <MissionFigure metric="heart_rate" />
+        </MissionPanel>
+        <MissionPanel title={hasQuestions ? 'Cuestionario' : 'Disponibilidad de asistencia'} icon="◇">
+          <h3 ref={confirmation} id="assistance-status" className="module-subtitle" tabIndex={-1}>
+            {confirmed ? 'Astronauta confirmado: ' + (selected.name || selected.id) : 'Preparación de la sesión'}
+          </h3>
+          {hasQuestions && confirmed && session && promptTarget && actionTarget
+            ? <AssistanceQuestionnaire session={session} questions={approvedAssistanceQuestions} onChange={onSessionChange} promptTarget={promptTarget} actionTarget={actionTarget} />
+            : <MissionEmpty title={hasQuestions ? 'Inicia la sesión para ver las preguntas' : 'Contenido pendiente de aprobación'}>
+                {hasQuestions ? 'Confirma el astronauta en la barra de acciones.' : 'Puedes confirmar al astronauta y regresar a su detalle. Las preguntas estarán disponibles tras la aprobación médica.'}
+              </MissionEmpty>}
+        </MissionPanel>
+      </div>
+      <div className="module-actions">
+        <strong>Sesión de asistencia</strong>
+        {!!session?.answers.size && !confirmed && <small>Reemplazar la sesión descartará las respuestas anteriores.</small>}
+        {selected && <a className="module-action" href={hrefFor(detailPathFor(selected.id))}>Volver al detalle</a>}
+        <a className="module-action" href={hrefFor('/tripulacion')}>Volver a tripulación</a>
+        {hasQuestions && <div ref={setActionTarget} className="module-question-actions" />}
+        {confirmed ? <Button className="module-action" onClick={() => { onSessionChange(null); confirmation.current?.focus() }}>Cancelar sesión</Button>
+          : <Button className="module-action primary" disabled={!selected} onClick={() => { if (selected) onSessionChange(startAssistanceSession(selected.id)) }}>
+            {session?.answers.size ? 'Reemplazar sesión' : hasQuestions ? 'Iniciar sesión' : 'Confirmar astronauta'}
+          </Button>}
+      </div>
+    </div>
   )
 }

@@ -1,108 +1,110 @@
-import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import { MeasurementTrend } from '../features/crew/components'
-import type { Astronaut } from '../services/api/adapters'
+import type { Astronaut, HistoricalReading } from '../services/api/adapters'
+import type { Variable } from '../services/api/contracts'
 import { QueryFeedback } from './CrewPage'
 import { useCrewQuery, type CrewApi } from './crewQuery'
-import { hrefFor, monitoringPath, monitoringPathFor } from './navigation'
-import { displayTime, toMeasurementTrends } from './telemetryPresentation'
+import { MissionFigure } from './MissionFigure'
+import { AssistanceLink, AstronautSelector, MetricRing, MissionEmpty, MissionIdentity, MissionPanel, metricMarks, metricNumber, metricQuality, missionMetrics, summaryNumber, useMissionCrew, useMissionStatus, type MissionSelection } from './MissionModules'
+import { toMeasurementTrends, variables } from './telemetryPresentation'
 
-function AstronautReadings({ api, astronaut }: { api: CrewApi; astronaut: Astronaut }) {
-  const load = useCallback(
-    (signal: AbortSignal) => api.getAstronautReadings(astronaut.id, signal),
-    [api, astronaut.id],
-  )
-  const { result, retry } = useCrewQuery(load)
+type HistoryResult = HistoricalReading[]
 
+export function TelemetryPanel({ api, selectedId, onSelect, id }: MissionSelection & { id: string | null }) {
+  const catalog = useMissionCrew(api, id ?? selectedId)
+  const [metric, setMetric] = useState<Variable>('heart_rate')
   return (
-    <Box component="section" aria-labelledby="telemetry-reading-title">
-      <Typography component="h2" variant="h6" id="telemetry-reading-title">
-        Lecturas de {astronaut.name || astronaut.id}
-      </Typography>
-      <Typography color="text.secondary">
-        Conexión del nodo: {astronaut.connection === 'online' ? 'En línea' : 'Sin conexión'}
-        {' · Último contacto: '}{displayTime(astronaut.lastContactAtMs)}
-      </Typography>
-      <Typography color="text.secondary" sx={{ mb: 2 }}>
-        Últimas 24 horas · hasta 100 lecturas.
-      </Typography>
-      {result.kind === 'ready' ? (
-        result.data.length === 0 ? (
-          <Typography role="status">No hay lecturas disponibles en este intervalo.</Typography>
-        ) : (
-          <Stack spacing={3} sx={{ minWidth: 0 }}>
-            <Typography color="text.secondary">Antigüedad sin clasificar. Procedencia no informada por la API.</Typography>
-            {toMeasurementTrends(result.data).map((trend) => (
-              <MeasurementTrend key={trend.variable} {...trend} />
-            ))}
-          </Stack>
-        )
-      ) : (
-        <QueryFeedback result={result} subject="las lecturas del astronauta" retry={retry} />
-      )}
-    </Box>
+    <div className="module-workspace">
+      <MissionPanel title="Astronautas" icon="◎" className="module-selector-bar">
+        {catalog.result.kind !== 'ready' ? <QueryFeedback result={catalog.result} subject="la tripulación" retry={catalog.retry} />
+          : catalog.crew.length ? <AstronautSelector horizontal crew={catalog.crew} selectedId={catalog.selected?.id} onSelect={onSelect} />
+          : <MissionEmpty title="No hay astronautas disponibles" />}
+      </MissionPanel>
+      {catalog.selected ? <TelemetryWorkspace key={catalog.selected.id} astronaut={catalog.selected} api={api} metric={metric} onMetric={setMetric} />
+        : <MissionPanel title="Histórico de telemetría" icon="⌁"><MissionEmpty title="Selecciona un astronauta">La gráfica y los indicadores aparecerán aquí.</MissionEmpty></MissionPanel>}
+    </div>
   )
 }
 
-export function TelemetryPanel({ api, id }: { api: CrewApi; id: string | null }) {
-  const load = useCallback((signal: AbortSignal) => api.listAstronauts(signal), [api])
-  const { result, retry } = useCrewQuery(load)
+function TelemetryWorkspace({ astronaut, api, metric, onMetric }: { astronaut: Astronaut; api: CrewApi; metric: Variable; onMetric: (value: Variable) => void }) {
+  const load = useCallback((signal: AbortSignal) => api.getAstronautReadings(astronaut.id, signal), [api, astronaut.id])
+  const history = useCrewQuery(load)
+  const detail = useMissionStatus(api, astronaut.id)
+  const status = detail.result.kind === 'ready' ? detail.result.data : undefined
+  const rows = history.result.kind === 'ready' ? history.result.data : []
+  const reading = status?.readings.find((item) => item.variable === metric)
+  return (
+    <div className="module-columns monitor-layout">
+      <MissionPanel title="Astronauta seleccionado" icon="◉" className="module-monitor-profile">
+        <MissionIdentity astronaut={astronaut} status={status} />
+        {detail.result.kind !== 'ready' && <QueryFeedback result={detail.result} subject="el estado del astronauta" retry={detail.retry} />}
+        <h3 className="module-subtitle">Última muestra</h3>
+        <div className="module-current">
+          <span className="module-icon" aria-hidden="true">{metricMarks[metric]}</span>
+          <div><strong>{variables[metric]}</strong><small>{reading ? metricQuality[reading.quality] : 'Sin lectura'}</small></div>
+          <b>{reading ? metricNumber.format(reading.value) : '—'} <small>{reading?.unit}</small></b>
+        </div>
+        <p className="module-note">Antigüedad sin clasificar. Procedencia no informada por la API.</p>
+        <AssistanceLink id={astronaut.id}>Abrir asistencia</AssistanceLink>
+      </MissionPanel>
+      <MissionPanel title="Evolución temporal" icon="⌁" className="module-history">
+        <div className="module-filters" aria-label="Indicadores de monitoreo">
+          {missionMetrics.map((variable) => <button type="button" key={variable} aria-pressed={metric === variable} onClick={() => onMetric(variable)}>
+            <span aria-hidden="true">{metricMarks[variable]}</span> {variables[variable]}
+          </button>)}
+        </div>
+        <p className="module-note">Últimas 24 horas · hasta 100 lecturas de todas las variables.</p>
+        {history.result.kind !== 'ready' ? <QueryFeedback result={history.result} subject="las lecturas del astronauta" retry={history.retry} />
+          : rows.length === 0 ? <MissionEmpty title="No hay lecturas disponibles en este intervalo." />
+          : <SelectedTrend key={metric} rows={rows} metric={metric} />}
+      </MissionPanel>
+      <MissionPanel title="Mapa de telemetría" icon="⌖" className="module-map monitor-map">
+        <MissionFigure metric={metric} onSelect={onMetric} />
+        <div className="module-small-rings"><MetricRing variable={metric} reading={reading} active /></div>
+      </MissionPanel>
+    </div>
+  )
+}
 
-  if (result.kind !== 'ready') {
-    return <QueryFeedback result={result} subject="la tripulación" retry={retry} />
-  }
+function SelectedTrend({ rows, metric }: { rows: HistoryResult; metric: Variable }) {
+  const trend = toMeasurementTrends(rows.filter((row) => row.variable === metric))[0]
+  const [index, setIndex] = useState<number | null>(null)
+  if (!trend) return <MissionEmpty title="Sin histórico para este indicador">Selecciona otra variable para consultar sus lecturas.</MissionEmpty>
 
-  if (result.data.length === 0) {
-    return <Typography role="status">No hay astronautas disponibles para monitoreo.</Typography>
-  }
-
-  const astronaut = result.data.find((entry) => entry.id === id)
+  const points = trend.points
+  const position = index ?? points.length - 1
+  const point = points[position]
+  const usable = points.filter((sample) => sample.quality !== 'sensor_fault')
+  const stats = usable.length > 1 ? [
+    ['Promedio', usable.reduce((sum, sample) => sum + sample.value / usable.length, 0)],
+    ['Mínimo', Math.min(...usable.map((sample) => sample.value))],
+    ['Máximo', Math.max(...usable.map((sample) => sample.value))],
+  ] as const : []
+  const quality = [
+    { label: 'Nominal', value: points.filter((sample) => sample.quality === 'ok').length, color: 'ok' },
+    { label: 'Degradada', value: points.filter((sample) => sample.quality === 'degraded').length, color: 'degraded' },
+    { label: 'Fallo de sensor', value: points.filter((sample) => sample.quality === 'sensor_fault').length, color: 'sensor_fault' },
+  ]
 
   return (
-    <Stack spacing={3} sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
-      <Box>
-        <Typography component="label" htmlFor="telemetry-astronaut" sx={{ display: 'block', mb: 1 }}>
-          Astronauta
-        </Typography>
-        <Box
-          component="select"
-          id="telemetry-astronaut"
-          value={astronaut?.id ?? ''}
-          onChange={(event) => {
-            const selected = event.currentTarget.value
-            window.location.hash = hrefFor(selected ? monitoringPathFor(selected) : monitoringPath)
-          }}
-          sx={{
-            width: '100%',
-            maxWidth: '28rem',
-            minHeight: 44,
-            px: 1.5,
-            font: 'inherit',
-            color: 'text.primary',
-            bgcolor: 'background.paper',
-            colorScheme: 'dark',
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 1,
-            '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 },
-          }}
-        >
-          <option value="">Seleccionar astronauta</option>
-          {result.data.map((entry) => (
-            <option key={entry.id} value={entry.id}>{entry.name ? `${entry.name} · ${entry.id}` : entry.id}</option>
-          ))}
-        </Box>
-      </Box>
-      {astronaut ? (
-        <AstronautReadings key={astronaut.id} astronaut={astronaut} api={api} />
-      ) : (
-        <Typography role="status">
-          {id === null ? 'Selecciona un astronauta para consultar sus lecturas.' : 'El astronauta seleccionado no está disponible.'}
-        </Typography>
-      )}
-    </Stack>
+    <>
+      <div className="module-trend"><MeasurementTrend {...trend} /></div>
+      <div className="module-sample">
+        <button type="button" disabled={position === 0} onClick={() => setIndex(position - 1)} aria-label="Muestra anterior">←</button>
+        <span aria-live="polite"><strong>{metricNumber.format(point.value)} {trend.unit}</strong> · Muestra {position + 1} de {points.length}<small>{point.timeFormatted} · {point.quality === 'unknown' ? 'No evaluada' : metricQuality[point.quality]}</small></span>
+        <button type="button" disabled={position === points.length - 1} onClick={() => setIndex(position + 1)} aria-label="Muestra siguiente">→</button>
+      </div>
+      <div className="module-chart-summary">
+        <dl className="module-facts">
+          <div><dt>Muestras</dt><dd>{points.length}</dd></div>
+          {stats.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{summaryNumber.format(value)} {trend.unit}</dd></div>)}
+        </dl>
+        {stats.length === 0 && <small>Se necesitan dos muestras utilizables para comparar valores.</small>}
+        <div className="module-quality" aria-label="Distribución por calidad de esta variable">
+          {quality.map(({ label, color, value }) => <div key={label}><span>{label}</span><meter className={color} min={0} max={points.length} value={value} aria-label={label} /><b>{value}</b></div>)}
+        </div>
+      </div>
+    </>
   )
 }
