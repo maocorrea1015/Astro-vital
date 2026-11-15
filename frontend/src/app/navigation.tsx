@@ -2,10 +2,12 @@ import { useSyncExternalStore } from 'react'
 
 import { isAstronautId } from '../services/api/validators'
 
+export const monitoringPath = '/monitoreo'
+
 export const sections = [
   { path: '/', label: 'Inicio' },
   { path: '/tripulacion', label: 'Tripulación' },
-  { path: '/monitoreo', label: 'Monitoreo' },
+  { path: monitoringPath, label: 'Monitoreo' },
   { path: '/alertas', label: 'Alertas' },
 ] as const
 
@@ -20,6 +22,16 @@ export function detailPathFor(id: string) {
 export function readDetailId(route: string): string | null {
   if (!route.startsWith(detailPrefix)) return null
   const id = route.slice(detailPrefix.length)
+  return isAstronautId(id) ? id : null
+}
+
+export function monitoringPathFor(id: string) {
+  return `${monitoringPath}/${encodeURIComponent(id)}`
+}
+
+export function readMonitoringId(route: string): string | null {
+  if (!route.startsWith(`${monitoringPath}/`)) return null
+  const id = route.slice(monitoringPath.length + 1)
   return isAstronautId(id) ? id : null
 }
 

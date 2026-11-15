@@ -8,7 +8,8 @@ import { AstronautPage } from './AstronautPage'
 import { CrewPage } from './CrewPage'
 import type { CrewApi } from './crewQuery'
 import { AppShell } from './AppShell'
-import { astronautDetailPath, hrefFor, readDetailId, useRoute } from './navigation'
+import { TelemetryPanel } from './TelemetryPanel'
+import { astronautDetailPath, hrefFor, monitoringPath, readDetailId, readMonitoringId, useRoute } from './navigation'
 
 const views: Record<string, { title: string; description: string } | undefined> = {
   '/': {
@@ -18,10 +19,6 @@ const views: Record<string, { title: string; description: string } | undefined> 
   [astronautDetailPath]: {
     title: 'Detalle de astronauta',
     description: 'La selección de integrantes y sus datos se incorporarán con la integración de tripulación.',
-  },
-  '/monitoreo': {
-    title: 'Monitoreo',
-    description: 'Aquí podrás consultar las mediciones y su evolución.',
   },
   '/alertas': {
     title: 'Alertas',
@@ -46,6 +43,15 @@ export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
     return (
       <AppShell route={route} title="Detalle de astronauta">
         <AstronautPage key={id} api={crewApi} id={id} />
+      </AppShell>
+    )
+  }
+
+  const monitoringId = readMonitoringId(route)
+  if (route === monitoringPath || monitoringId !== null) {
+    return (
+      <AppShell route={route} title="Monitoreo">
+        <TelemetryPanel api={crewApi} id={monitoringId} />
       </AppShell>
     )
   }

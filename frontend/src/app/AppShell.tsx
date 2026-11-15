@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 
-import { astronautDetailPath, hrefFor, readDetailId, sections } from './navigation'
+import { astronautDetailPath, hrefFor, monitoringPath, readDetailId, readMonitoringId, sections } from './navigation'
 
 interface AppShellProps {
   route: string
@@ -15,16 +15,17 @@ interface AppShellProps {
 
 export function AppShell({ route, title, children }: AppShellProps) {
   const heading = useRef<HTMLHeadingElement>(null)
-  const previousRoute = useRef(route)
+  const focusRoute = readMonitoringId(route) === null ? route : monitoringPath
+  const previousRoute = useRef(focusRoute)
 
   useEffect(() => {
-    if (previousRoute.current !== route) {
-      previousRoute.current = route
+    if (previousRoute.current !== focusRoute) {
+      previousRoute.current = focusRoute
       heading.current?.focus()
     }
-  }, [route])
+  }, [focusRoute])
 
-  const activeSection = route === astronautDetailPath || readDetailId(route) !== null ? '/tripulacion' : route
+  const activeSection = route === astronautDetailPath || readDetailId(route) !== null ? '/tripulacion' : focusRoute
 
   return (
     <Box sx={{ minHeight: '100svh' }}>

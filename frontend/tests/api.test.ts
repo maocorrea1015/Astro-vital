@@ -167,3 +167,39 @@ test('agrupa solicitudes simultáneas sin señal y vuelve a consultar al termina
   await api.getHealth()
   assert.equal(calls, 2)
 })
+
+test('consulta únicamente el histórico documentado y adapta valores, calidad y hora', async () => {
+  const calls: string[] = []
+  const history = [
+    { ...reading, astronaut_id: 'astro-01', id: 2 },
+    { ...reading, astronaut_id: 'astro-01', id: 1, ts: ts - 60, variable: 'radiation_cpm' },
+  ]
+  const api = createAstronautApi({
+    ...options,
+    fetchImpl: async (url) => {
+      calls.push(String(url))
+      return json(history)
+    },
+  })
+  const readings = await api.getAstronautReadings('astro-01')
+  assert.deepEqual(calls, ['/gateway/api/astronauts/astro-01/readings'])
+  assert.deepEqual(readings.map(({ id, value, unit, measuredAtMs, quality, source }) => ({
+    id, value, unit, measuredAtMs, quality, source,
+  })), [
+    { id: 2, value: 0, unit: null, measuredAtMs: ts * 1000, quality: 'degraded', source: 'unknown' },
+    { id: 1, value: 0, unit: 'CPM', measuredAtMs: (ts - 60) * 1000, quality: 'degraded', source: 'unknown' },
+  ])
+  await assert.rejects(api.getAstronautReadings('../x'), apiError('invalid-request'))
+  await assert.rejects(api.getAstronautReadings('astro-02'), ContractError)
+})
+
+test('mantiene el acceso al histórico desactivado por defecto y distingue vacío y error', async () => {
+  const disabled = createAstronautApi({ fetchImpl: async () => {
+    assert.fail('Una consulta sin acceso configurado no debe usar fetch')
+  } })
+  await assert.rejects(disabled.getAstronautReadings('astro-01'), apiError('access-unconfigured'))
+  const empty = createAstronautApi({ ...options, fetchImpl: async () => json([]) })
+  assert.deepEqual(await empty.getAstronautReadings('astro-01'), [])
+  const failed = createAstronautApi({ ...options, fetchImpl: async () => new Response(null, { status: 500 }) })
+  await assert.rejects(failed.getAstronautReadings('astro-01'), apiError('server', 500))
+})

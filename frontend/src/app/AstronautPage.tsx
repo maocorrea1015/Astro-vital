@@ -4,31 +4,13 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 
-import { formatTimestamp, type Reading } from '../services/api/adapters'
 import { QueryFeedback } from './CrewPage'
 import { useCrewQuery, type CrewApi } from './crewQuery'
 import { hrefFor } from './navigation'
 
-const variables: Record<Reading['variable'], string> = {
-  heart_rate: 'Frecuencia cardíaca',
-  spo2: 'Saturación de oxígeno',
-  temperature: 'Temperatura',
-  radiation_cpm: 'Radiación',
-  activity: 'Actividad',
-}
-
-const qualities: Record<Reading['quality'], string> = {
-  ok: 'Válida según la fuente',
-  degraded: 'Degradada',
-  sensor_fault: 'Fallo del sensor',
-}
+import { displayTime, qualities, variables } from './telemetryPresentation'
 
 const reportedStatuses = { normal: 'Normal', warning: 'Advertencia', critical: 'Crítico' }
-
-function displayTime(timestampMs: number | null) {
-  const formatted = formatTimestamp(timestampMs, 'es-CO', 'UTC')
-  return formatted === null ? 'Sin contacto registrado' : `${formatted} UTC`
-}
 
 export function AstronautPage({ id, api }: { id: string; api: CrewApi }) {
   const load = useCallback((signal: AbortSignal) => api.getAstronautStatus(id, signal), [api, id])
