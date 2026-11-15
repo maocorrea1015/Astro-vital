@@ -27,14 +27,14 @@ function AstronautReadings({ api, astronaut }: { api: CrewApi; astronaut: Astron
         {' · Último contacto: '}{displayTime(astronaut.lastContactAtMs)}
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 2 }}>
-        Últimas 24 horas · hasta 100 lecturas · frescura sin criterio configurado.
+        Últimas 24 horas · hasta 100 lecturas.
       </Typography>
       {result.kind === 'ready' ? (
         result.data.length === 0 ? (
           <Typography role="status">No hay lecturas disponibles en este intervalo.</Typography>
         ) : (
           <Stack spacing={3} sx={{ minWidth: 0 }}>
-            <Typography color="text.secondary">Procedencia no informada por la API.</Typography>
+            <Typography color="text.secondary">Antigüedad sin clasificar. Procedencia no informada por la API.</Typography>
             {toMeasurementTrends(result.data).map((trend) => (
               <MeasurementTrend key={trend.variable} {...trend} />
             ))}

@@ -24,7 +24,7 @@ export function AstronautPage({ id, api }: { id: string; api: CrewApi }) {
             measurements={result.data.readings.map(toMeasurementIndicator)}
           />
           {result.data.readings.length > 0 && (
-            <Typography color="text.secondary">Procedencia no informada por la API.</Typography>
+            <Typography color="text.secondary">Antigüedad sin clasificar. Procedencia no informada por la API.</Typography>
           )}
         </>
       ) : (
