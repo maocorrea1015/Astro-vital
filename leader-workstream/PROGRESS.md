@@ -7,7 +7,7 @@ L00 inspeccionó `feature/frontend-foundation` en `6e3109e`. La base frontend co
 | L01 | VERIFICADO | Traspaso al junior y revisión humana | [Informe L01](reports/L01-report.md) | Pendiente de revisión |
 | L02 | VERIFICADO | Revisión humana y acuerdos de integración | [Informe L02](reports/L02-report.md) | Pendiente de revisión |
 | L03 | VERIFICADO LOCALMENTE | Conexión autenticada real pendiente con Mauricio | [Informe L03](reports/L03-report.md) | Pendiente de revisión |
-| L04 | L04-A VERIFICADO LOCALMENTE | L04-B pendiente de acceso autenticado y J01/J02 | [Informe L04-A](reports/L04-A-report.md) | Pendiente de revisión |
+| L04 | L04-B COMPOSICIÓN VERIFICADA LOCALMENTE | Consulta autenticada con Flask pendiente | [Informe L04-A](reports/L04-A-report.md) · [Informe L04-B](reports/L04-B-integration-report.md) | Pendiente de revisión |
 | L05 | VERIFICADO LOCALMENTE (75% del alcance integral) | Acceso autenticado, frescura y montaje J03/J04 pendientes | [Informe L05](reports/L05-report.md) | Pendiente de revisión |
 | L06 | NO INICIADO | Origen, navegador y política PWA | Sin informe | Sin revisión |
 | L07 | NO INICIADO | Aplicación y entregas junior disponibles | Sin informe | Sin revisión |
