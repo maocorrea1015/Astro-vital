@@ -67,7 +67,7 @@ class Config:
     # Cabeceras de seguridad
     ENABLE_HSTS: bool = os.getenv("ENABLE_HSTS", "false").lower() in ("true", "1", "yes")
     # Habilitar consultas GET públicas para integración con frontend React en navegador/demo
-    ALLOW_ANONYMOUS_READ: bool = os.getenv("ALLOW_ANONYMOUS_READ", "true").lower() in ("true", "1", "yes")
+    ALLOW_ANONYMOUS_READ: bool = os.getenv("ALLOW_ANONYMOUS_READ", "false").lower() in ("true", "1", "yes")
     TESTING: bool = False
 
 
@@ -97,6 +97,7 @@ class ProductionConfig(Config):
     """Configuración para despliegue en entornos de producción (laptop de misión o Raspberry Pi)."""
 
     DEBUG: bool = False
+    ALLOW_ANONYMOUS_READ: bool = False
 
 
 def get_config(env_name: str | None = None) -> type[Config]:
