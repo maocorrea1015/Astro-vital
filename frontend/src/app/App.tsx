@@ -30,8 +30,14 @@ const defaultCrewApi = createAstronautApi({
 export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
   const route = useRoute()
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [session, setSession] = useState<AssistanceSession | null>(null)
-  const hasAnswers = Boolean(session?.answers.size)
+  const [sessions, setSessions] = useState<ReadonlyMap<string, AssistanceSession>>(() => new Map())
+  const hasAnswers = [...sessions.values()].some((session) => session.answers.size > 0)
+  const updateSession = (session: AssistanceSession | null, id: string) => setSessions((previous) => {
+    const next = new Map(previous)
+    if (session) next.set(id, session)
+    else next.delete(id)
+    return next
+  })
   const routeId = readDetailId(route) ?? readMonitoringId(route) ?? readAlertsId(route) ?? readAssistanceId(route)
   useEffect(() => { if (routeId) setSelectedId(routeId) }, [routeId])
 
@@ -92,7 +98,7 @@ export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
   if (route === assistancePath || assistanceId !== null) {
     return (
       <AppShell route={route} title="Asistencia">
-        <AssistancePage key={assistanceId ?? assistancePath} api={crewApi} initialId={assistanceId} selectedId={selectedId} onSelect={(id) => { setSelectedId(id); location.hash = hrefFor(assistancePathFor(id)) }} session={session} onSessionChange={setSession} />
+        <AssistancePage key={assistanceId ?? assistancePath} api={crewApi} initialId={assistanceId} selectedId={selectedId} onSelect={(id) => { setSelectedId(id); location.hash = hrefFor(assistancePathFor(id)) }} sessions={sessions} onSessionChange={updateSession} />
       </AppShell>
     )
   }

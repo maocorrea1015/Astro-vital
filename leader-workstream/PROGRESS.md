@@ -20,6 +20,9 @@ L00 inspeccionó `feature/frontend-foundation` en `6e3109e`. La base frontend co
 | L11 | PRESENTACIÓN VERIFICADA · P0 PENDIENTE DE ACUERDO | Mauricio y líder deben confirmar la política de antigüedad y la procedencia verificable de alertas | [Informe L11](reports/L11-consistency-report.md) | Pendiente de revisión |
 | L13 | CENTRO OPERATIVO VERIFICADO EN NAVEGADOR Y LABORATORIO | Revisión del líder, validación médica y acuerdos L11 | [Informe L13](reports/L13-mission-control-redesign-report.md) | Pendiente de revisión |
 | L14 | CUATRO MÓDULOS REDISEÑADOS Y VERIFICADOS | Revisión visual del líder y aprobaciones L09-B/L11 | [Informe L14](reports/L14-visual-consistency-redesign-report.md) | Pendiente de revisión |
+| L15 | DEMO OBSERVACIONAL A-01 VERIFICADA EN LABORATORIO | Revisión del líder, aprobación médica y acceso protegido antes de uso operativo | [Informe L15](reports/L15-medical-mvp-integration-report.md) | Pendiente de revisión |
+| L15-B | EVALUACIÓN RÁPIDA VERIFICADA | Revisión humana de UX e interpretación, y aprobación médica pendiente | [Informe L15-B](reports/L15-B-assistance-ux-correction.md) | Pendiente de revisión |
+| L15-C | GUÍAS EDUCATIVAS Y CINCO PERFILES VERIFICADOS EN LABORATORIO | Revisión del líder y aprobación médica pendiente | [Informe L15-C](reports/L15-C-first-aid-demo-report.md) | Pendiente de revisión |
 
 Estados técnicos: NO INICIADO, EN CURSO, IMPLEMENTADO, VERIFICADO, BLOQUEADO y PENDIENTE DE VALIDACIÓN. IMPLEMENTADO registra código con validaciones pendientes. VERIFICADO exige evidencia de pruebas esenciales. En revisión humana, registra sin revisión, pendiente de revisión o aprobado con evidencia explícita.
 

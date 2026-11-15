@@ -1,12 +1,18 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 
 import { AlertCard } from '../features/alerts/components'
 import type { Alert, Astronaut } from '../services/api/adapters'
 import { QueryFeedback } from './CrewPage'
 import type { CrewApi } from './crewQuery'
 import { MissionFigure } from './MissionFigure'
-import { AstronautSelector, MetricRing, MissionEmpty, MissionPanel, missionSeverity, severityOrder, useMissionCrew, useMissionStatus, type MissionSelection } from './MissionModules'
+import { AstronautSelector, MetricRing, metricNumber, MissionEmpty, MissionPanel, missionSeverity, severityOrder, useMissionCrew, useMissionStatus, type MissionSelection } from './MissionModules'
+import { assistancePathFor, hrefFor } from './navigation'
+import { observationDemoEnabled } from './observationEnvironment'
 import { displayTime, toActiveAlert, variables } from './telemetryPresentation'
+
+const MedicalLibrary = import.meta.env.DEV
+  ? lazy(() => import('./ObservationDocument').then((module) => ({ default: module.MedicalLibrary })))
+  : null
 
 type Filter = 'all' | Alert['severity']
 const severities = ['critical', 'warning', 'info'] as const
@@ -93,6 +99,13 @@ function AlertDetail({ alert, status }: { alert: Alert; status: Awaited<ReturnTy
         </div>
         <div className="module-map alert-map"><MissionFigure metric={metric} onSelect={setMetric} /></div>
       </div>
+      {observationDemoEnabled && MedicalLibrary && (
+        <div className="observation-alert-actions">
+          <p className="module-note">Valor del aviso #{alert.id}: {metricNumber.format(alert.value)} · <time dateTime={new Date(alert.measuredAtMs).toISOString()}>{displayTime(alert.measuredAtMs)}</time></p>
+          <Suspense fallback={<span role="status">Cargando fichas…</span>}><MedicalLibrary variable={alert.variable} /></Suspense>
+          <a className="module-action primary" href={hrefFor(assistancePathFor(status.id, alert.id))}>Iniciar asistencia</a>
+        </div>
+      )}
       <p className="module-notice">Guía clínica pendiente de validación médica.</p>
     </>
   )

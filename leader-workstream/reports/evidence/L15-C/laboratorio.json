@@ -1,0 +1,119 @@
+{
+  "crew": [
+    {
+      "id": "astro-01",
+      "mode": "normal",
+      "readings": 10,
+      "qualities": [
+        "ok"
+      ],
+      "alerts": []
+    },
+    {
+      "id": "astro-02",
+      "mode": "tachycardia",
+      "readings": 10,
+      "qualities": [
+        "ok"
+      ],
+      "alerts": [
+        {
+          "id": 3,
+          "variable": "heart_rate",
+          "severity": "critical",
+          "ts": 1794745237
+        },
+        {
+          "id": 1,
+          "variable": "heart_rate",
+          "severity": "critical",
+          "ts": 1794745235
+        },
+        {
+          "id": 2,
+          "variable": "spo2",
+          "severity": "warning",
+          "ts": 1794745235
+        }
+      ]
+    },
+    {
+      "id": "astro-03",
+      "mode": "hypoxia",
+      "readings": 10,
+      "qualities": [
+        "ok"
+      ],
+      "alerts": [
+        {
+          "id": 6,
+          "variable": "heart_rate",
+          "severity": "warning",
+          "ts": 1794745239
+        },
+        {
+          "id": 7,
+          "variable": "spo2",
+          "severity": "critical",
+          "ts": 1794745239
+        },
+        {
+          "id": 4,
+          "variable": "heart_rate",
+          "severity": "warning",
+          "ts": 1794745237
+        },
+        {
+          "id": 5,
+          "variable": "spo2",
+          "severity": "critical",
+          "ts": 1794745237
+        }
+      ]
+    },
+    {
+      "id": "astro-04",
+      "mode": "radiation",
+      "readings": 10,
+      "qualities": [
+        "ok"
+      ],
+      "alerts": [
+        {
+          "id": 9,
+          "variable": "radiation_cpm",
+          "severity": "critical",
+          "ts": 1794745241
+        },
+        {
+          "id": 8,
+          "variable": "radiation_cpm",
+          "severity": "critical",
+          "ts": 1794745239
+        }
+      ]
+    },
+    {
+      "id": "astro-05",
+      "mode": "sensor_fault",
+      "readings": 10,
+      "qualities": [
+        "sensor_fault"
+      ],
+      "alerts": []
+    }
+  ],
+  "browser": {
+    "requests": 46,
+    "onlyGet": true,
+    "apiKey": false,
+    "independentSessions": true,
+    "guides": [
+      "A",
+      "B",
+      "C",
+      "F"
+    ],
+    "reset": true
+  }
+}
