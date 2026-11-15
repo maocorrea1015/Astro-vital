@@ -3,11 +3,12 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 
+import { MeasurementIndicator } from '../features/crew/components'
 import type { Astronaut } from '../services/api/adapters'
 import { QueryFeedback } from './CrewPage'
 import { useCrewQuery, type CrewApi } from './crewQuery'
 import { hrefFor, monitoringPath, monitoringPathFor } from './navigation'
-import { displayTime, qualities, variables } from './telemetryPresentation'
+import { displayTime, toMeasurementIndicator } from './telemetryPresentation'
 
 function AstronautReadings({ api, astronaut }: { api: CrewApi; astronaut: Astronaut }) {
   const load = useCallback(
@@ -32,15 +33,10 @@ function AstronautReadings({ api, astronaut }: { api: CrewApi; astronaut: Astron
         result.data.length === 0 ? (
           <Typography role="status">No hay lecturas disponibles en este intervalo.</Typography>
         ) : (
-          <Box component="ul" sx={{ pl: 3 }}>
-            {result.data.map(({ id, variable, value, unit, measuredAtMs, quality }) => (
-              <Box component="li" key={id} sx={{ mb: 1 }}>
-                <Typography component="span">
-                  {variables[variable]}: {value}{unit ? ` ${unit}` : ' (unidad sin confirmar)'}
-                </Typography>
-                <Typography color="text.secondary">
-                  {displayTime(measuredAtMs)} · Calidad: {qualities[quality]}
-                </Typography>
+          <Box component="ul" sx={{ listStyle: 'none', p: 0, display: 'grid', gap: 2 }}>
+            {result.data.map((reading) => (
+              <Box component="li" key={reading.id}>
+                <MeasurementIndicator {...toMeasurementIndicator(reading)} />
               </Box>
             ))}
           </Box>

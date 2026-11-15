@@ -1,10 +1,10 @@
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Link from '@mui/material/Link'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 
+import { CrewView } from '../features/crew/components'
+import { toCrewMember } from './telemetryPresentation'
 import { detailPathFor, hrefFor } from './navigation'
 import { useCrewQuery, type CrewApi, type CrewQuery } from './crewQuery'
 
@@ -39,21 +39,19 @@ export function CrewPage({ api }: { api: CrewApi }) {
   const load = useCallback((signal: AbortSignal) => api.listAstronauts(signal), [api])
   const { result, retry } = useCrewQuery(load)
 
-  if (result.kind !== 'ready') {
+  if (result.kind === 'unconfigured') {
     return <QueryFeedback result={result} subject="la tripulación" retry={retry} />
   }
 
-  if (result.data.length === 0) {
-    return <Typography role="status">No hay astronautas disponibles.</Typography>
-  }
-
   return (
-    <Box component="ul" sx={{ pl: 3, overflowWrap: 'anywhere' }}>
-      {result.data.map(({ id, name }) => (
-        <Box component="li" key={id} sx={{ mb: 1 }}>
-          <Link href={hrefFor(detailPathFor(id))}>{name ? `${name} · ${id}` : id}</Link>
-        </Box>
-      ))}
-    </Box>
+    <CrewView
+      crew={result.kind === 'ready' ? result.data.map(toCrewMember) : []}
+      isLoading={result.kind === 'loading'}
+      errorMessage={result.kind === 'error'
+        ? (result.notFound ? 'El catálogo solicitado no está disponible.' : 'No se pudo consultar la tripulación.')
+        : null}
+      onRetry={result.kind === 'error' && !result.notFound ? retry : undefined}
+      onSelect={(id) => { window.location.hash = hrefFor(detailPathFor(id)) }}
+    />
   )
 }

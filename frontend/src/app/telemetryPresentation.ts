@@ -1,4 +1,5 @@
-import { formatTimestamp, type Reading } from '../services/api/adapters'
+import type { CrewMemberItem, MeasurementIndicatorProps } from '../features/crew/components'
+import { formatTimestamp, type Astronaut, type Reading } from '../services/api/adapters'
 
 export const variables: Record<Reading['variable'], string> = {
   heart_rate: 'Frecuencia cardíaca',
@@ -8,13 +9,28 @@ export const variables: Record<Reading['variable'], string> = {
   activity: 'Actividad',
 }
 
-export const qualities: Record<Reading['quality'], string> = {
-  ok: 'Válida según la fuente',
-  degraded: 'Degradada',
-  sensor_fault: 'Fallo del sensor',
-}
-
 export function displayTime(timestampMs: number | null) {
   const formatted = formatTimestamp(timestampMs, 'es-CO', 'UTC')
   return formatted === null ? 'Sin contacto registrado' : `${formatted} UTC`
+}
+
+export function toCrewMember(astronaut: Astronaut): CrewMemberItem {
+  return {
+    id: astronaut.id,
+    name: astronaut.name,
+    generalStatus: astronaut.reportedStatus,
+    connectionStatus: astronaut.connection,
+    lastContactFormatted: astronaut.lastContactAtMs === null ? null : displayTime(astronaut.lastContactAtMs),
+  }
+}
+
+export function toMeasurementIndicator(reading: Reading): MeasurementIndicatorProps {
+  return {
+    variable: reading.variable,
+    variableLabel: variables[reading.variable],
+    value: reading.value,
+    unit: reading.unit,
+    quality: reading.quality,
+    timeFormatted: displayTime(reading.measuredAtMs),
+  }
 }
