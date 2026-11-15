@@ -3,12 +3,12 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 
-import { MeasurementIndicator } from '../features/crew/components'
+import { MeasurementTrend } from '../features/crew/components'
 import type { Astronaut } from '../services/api/adapters'
 import { QueryFeedback } from './CrewPage'
 import { useCrewQuery, type CrewApi } from './crewQuery'
 import { hrefFor, monitoringPath, monitoringPathFor } from './navigation'
-import { displayTime, toMeasurementIndicator } from './telemetryPresentation'
+import { displayTime, toMeasurementTrends } from './telemetryPresentation'
 
 function AstronautReadings({ api, astronaut }: { api: CrewApi; astronaut: Astronaut }) {
   const load = useCallback(
@@ -33,13 +33,12 @@ function AstronautReadings({ api, astronaut }: { api: CrewApi; astronaut: Astron
         result.data.length === 0 ? (
           <Typography role="status">No hay lecturas disponibles en este intervalo.</Typography>
         ) : (
-          <Box component="ul" sx={{ listStyle: 'none', p: 0, display: 'grid', gap: 2 }}>
-            {result.data.map((reading) => (
-              <Box component="li" key={reading.id}>
-                <MeasurementIndicator {...toMeasurementIndicator(reading)} />
-              </Box>
+          <Stack spacing={3} sx={{ minWidth: 0 }}>
+            <Typography color="text.secondary">Procedencia no informada por la API.</Typography>
+            {toMeasurementTrends(result.data).map((trend) => (
+              <MeasurementTrend key={trend.variable} {...trend} />
             ))}
-          </Box>
+          </Stack>
         )
       ) : (
         <QueryFeedback result={result} subject="las lecturas del astronauta" retry={retry} />
@@ -63,7 +62,7 @@ export function TelemetryPanel({ api, id }: { api: CrewApi; id: string | null })
   const astronaut = result.data.find((entry) => entry.id === id)
 
   return (
-    <Stack spacing={3} sx={{ maxWidth: '66ch', overflowWrap: 'anywhere' }}>
+    <Stack spacing={3} sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
       <Box>
         <Typography component="label" htmlFor="telemetry-astronaut" sx={{ display: 'block', mb: 1 }}>
           Astronauta

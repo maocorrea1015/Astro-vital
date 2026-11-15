@@ -7,7 +7,7 @@ import type { ReactNode } from 'react'
 
 import { PwaControls } from '../pwa/PwaControls'
 import { useBrowserOnline } from '../pwa/useBrowserOnline'
-import { assistancePath, assistancePathFor, astronautDetailPath, hrefFor, monitoringPath, pageHeadingId, readAssistanceId, readDetailId, readMonitoringId, sections } from './navigation'
+import { alertsPath, assistancePath, assistancePathFor, astronautDetailPath, hrefFor, monitoringPath, pageHeadingId, readAssistanceId, readDetailId, readMonitoringId, sections } from './navigation'
 
 interface AppShellProps {
   route: string
@@ -37,7 +37,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
   const contextualId = detailId ?? readMonitoringId(route) ?? assistanceId
   const contextualAssistancePath = contextualId ? assistancePathFor(contextualId) : assistancePath
 
-  const needsData = activeSection === '/tripulacion' || activeSection === monitoringPath || activeSection === assistancePath
+  const needsData = activeSection === '/tripulacion' || activeSection === monitoringPath || activeSection === assistancePath || activeSection === alertsPath
 
   useEffect(() => {
     if (previousOnline.current && !browserOnline && needsData && document.activeElement === document.body) {
