@@ -21,11 +21,11 @@ export const assistancePath = '/asistencia'
 export const monitoringPath = '/monitoreo'
 
 export const sections = [
-  { path: '/', label: 'Inicio' },
-  { path: '/tripulacion', label: 'Tripulación' },
-  { path: monitoringPath, label: 'Monitoreo' },
-  { path: alertsPath, label: 'Alertas' },
-  { path: assistancePath, label: 'Asistencia' },
+  { path: '/', label: 'Home' },
+  { path: '/tripulacion', label: 'Crew' },
+  { path: monitoringPath, label: 'Monitoring' },
+  { path: alertsPath, label: 'Alerts' },
+  { path: assistancePath, label: 'Medical Assistance' },
 ] as const
 
 export const astronautDetailPath = '/tripulacion/detalle'

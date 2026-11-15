@@ -34,9 +34,9 @@ export function AssistanceQuestionnaire({ session, questions, onChange, promptTa
   if (!question || !progress) {
     return (
       <Stack spacing={2} sx={{ alignItems: 'flex-start' }}>
-        {createPortal(<Typography component="h3" variant="h6" ref={heading} tabIndex={-1} sx={focusOutline}>Cuestionario completado</Typography>, promptTarget)}
-        <Typography>Las respuestas permanecen en esta sesión.</Typography>
-        {createPortal(<Button className="module-action" onClick={() => move(-1)}>Volver a las preguntas</Button>, actionTarget)}
+        {createPortal(<Typography component="h3" variant="h6" ref={heading} tabIndex={-1} sx={focusOutline}>Questionnaire Complete</Typography>, promptTarget)}
+        <Typography>Your answers remain in this session.</Typography>
+        {createPortal(<Button className="module-action" onClick={() => move(-1)}>Back to Questions</Button>, actionTarget)}
       </Stack>
     )
   }
@@ -49,15 +49,15 @@ export function AssistanceQuestionnaire({ session, questions, onChange, promptTa
     <Stack spacing={2}>
       {createPortal(
         <>
-          <Typography color="text.secondary">Paso {progress.current} de {progress.total}</Typography>
-          <progress aria-label="Progreso del cuestionario" value={progress.current} max={progress.total} />
+          <Typography color="text.secondary" >Step {progress.current} of {progress.total}</Typography>
+          <progress aria-label="Questionnaire progress" value={progress.current} max={progress.total} />
           <Typography id="assistance-question" component="h3" variant="h6" ref={heading} tabIndex={-1} sx={focusOutline}>
             {question.prompt}
           </Typography>
         </>, promptTarget,
       )}
       <Typography color="text.secondary" id="assistance-selection-help">
-        {question.kind === 'single' ? 'Selecciona una opción.' : 'Selecciona una o más opciones.'}
+        {question.kind === 'single' ? 'Select one option.' : 'Select one or more options.'}
       </Typography>
       {question.kind === 'single' ? (
         <RadioGroup
@@ -92,9 +92,9 @@ export function AssistanceQuestionnaire({ session, questions, onChange, promptTa
         </Box>
       )}
       {createPortal(<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-        {session.step > 0 && <Button className="module-action" onClick={() => move(-1)}>Anterior</Button>}
+        {session.step > 0 && <Button className="module-action" onClick={() => move(-1)}>Previous</Button>}
         <Button className="module-action primary" disabled={answer.length === 0} onClick={() => move(1)}>
-          {progress.current === progress.total ? 'Finalizar cuestionario' : 'Siguiente'}
+          {progress.current === progress.total ? 'Finish Questionnaire' : 'Next'}
         </Button>
       </Stack>, actionTarget)}
     </Stack>

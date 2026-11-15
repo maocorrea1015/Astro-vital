@@ -18,7 +18,7 @@ export type SensorQuality = 'ok' | 'degraded' | 'sensor_fault' | 'unknown'
 export interface MeasurementIndicatorProps {
   /** Variable monitoreada (clave estándar del contrato o extensible) */
   variable: TelemetryVariable
-  /** Etiqueta descriptiva para visualización (ej. 'Frecuencia cardíaca') */
+  /** Etiqueta descriptiva para visualización (ej. 'Heart Rate') */
   variableLabel?: string | null
   /**
    * Valor numérico medido.
@@ -38,11 +38,11 @@ export interface MeasurementIndicatorProps {
 }
 
 const DEFAULT_VARIABLE_LABELS: Record<string, string> = {
-  heart_rate: 'Frecuencia cardíaca',
-  spo2: 'Saturación de oxígeno (SpO₂)',
-  temperature: 'Temperatura corporal',
-  radiation_cpm: 'Tasa de radiación',
-  activity: 'Nivel de actividad',
+  heart_rate: 'Heart Rate',
+  spo2: 'Oxygen Saturation (SpO₂)',
+  temperature: 'Body Temperature',
+  radiation_cpm: 'Radiation Rate',
+  activity: 'Activity Level',
 }
 
 const QUALITY_CONFIG: Record<
@@ -50,29 +50,29 @@ const QUALITY_CONFIG: Record<
   { label: string; color: 'success' | 'warning' | 'error' | 'default'; description: string }
 > = {
   ok: {
-    label: 'Calidad nominal',
+    label: 'Nominal quality',
     color: 'success',
-    description: 'Sensor operando dentro de parámetros esperados',
+    description: 'Sensor operating within expected parameters',
   },
   degraded: {
-    label: 'Calidad degradada',
+    label: 'Degraded quality',
     color: 'warning',
-    description: 'Señal con ruido o precisión disminuida',
+    description: 'Noisy or less precise signal',
   },
   sensor_fault: {
-    label: 'Fallo de sensor',
+    label: 'Sensor Fault',
     color: 'error',
-    description: 'Transductor averiado; muestra no válida para evaluación',
+    description: 'Transducer fault. Reading invalid for assessment.',
   },
   unknown: {
-    label: 'Calidad no evaluada',
+    label: 'Quality not assessed',
     color: 'default',
-    description: 'Estado de calidad no informado por el origen',
+    description: 'The source did not report quality status',
   },
 }
 
-const standardNumber = new Intl.NumberFormat('es-CO', { maximumSignificantDigits: 17 })
-const tinyNumber = new Intl.NumberFormat('es-CO', {
+const standardNumber = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 17 })
+const tinyNumber = new Intl.NumberFormat('en-US', {
   notation: 'scientific', maximumSignificantDigits: 17,
 })
 
@@ -141,7 +141,7 @@ export function MeasurementIndicator({
                   size="small"
                   color="warning"
                   variant="outlined"
-                  label="Lectura obsoleta"
+                  label="Stale Reading"
                   sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                 />
               )}
@@ -185,7 +185,7 @@ export function MeasurementIndicator({
                     {unit}
                   </Typography>
                 )}
-                {unit === null && <Typography variant="caption">Unidad sin confirmar</Typography>}
+                {unit === null && <Typography variant="caption">Unit unconfirmed</Typography>}
                 {isZero && (
                   <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
                     (valor exacto cero)
@@ -199,18 +199,18 @@ export function MeasurementIndicator({
                 color="text.secondary"
                 sx={{ fontStyle: 'italic', fontWeight: 500 }}
               >
-                Sin datos disponibles
+                No data available
               </Typography>
             )}
 
-            {/* Advertencia especial si el transductor está averiado */}
+            {/* Warning especial si el transductor está averiado */}
             {isFault && hasValue && (
               <Typography
                 variant="caption"
                 color="error.main"
                 sx={{ display: 'block', mt: 0.5, fontWeight: 500 }}
               >
-                Advertencia: Lectura no confiable por fallo detectado en el sensor.
+                Warning: The reading is unreliable because a sensor fault was detected.
               </Typography>
             )}
           </Box>
@@ -218,9 +218,9 @@ export function MeasurementIndicator({
           {/* Información Temporal y Trazabilidad */}
           <Box sx={{ pt: 0.5, borderTop: '1px solid', borderColor: 'divider' }}>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-              Hora de muestra:{' '}
+              Reading time:{' '}
               <Box component="span" sx={{ color: 'text.primary' }}>
-                {timeFormatted?.trim() || 'Hora no registrada'}
+                {timeFormatted?.trim() || 'Time not recorded'}
               </Box>
             </Typography>
           </Box>

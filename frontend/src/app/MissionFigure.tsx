@@ -3,11 +3,11 @@ import type { KeyboardEvent } from 'react'
 import type { Variable } from '../services/api/contracts'
 
 const regions: readonly { metric: Variable; label: string; x: number; y: number; mark: string }[] = [
-  { metric: 'temperature', label: 'Temperatura corporal', x: 160, y: 83, mark: 'T' },
-  { metric: 'heart_rate', label: 'Frecuencia cardíaca en el tórax', x: 147, y: 160, mark: '♥' },
-  { metric: 'spo2', label: 'Saturación de oxígeno en el tórax', x: 180, y: 188, mark: 'O₂' },
-  { metric: 'activity', label: 'Actividad y movimiento', x: 184, y: 308, mark: 'A' },
-  { metric: 'radiation_cpm', label: 'Radiación ambiental, fuera de la figura', x: 257, y: 132, mark: 'R' },
+  { metric: 'temperature', label: 'Body Temperature', x: 160, y: 83, mark: 'T' },
+  { metric: 'heart_rate', label: 'Heart Rate at the chest', x: 147, y: 160, mark: '♥' },
+  { metric: 'spo2', label: 'Oxygen Saturation (SpO₂) at the chest', x: 180, y: 188, mark: 'O₂' },
+  { metric: 'activity', label: 'Activity and movement', x: 184, y: 308, mark: 'A' },
+  { metric: 'radiation_cpm', label: 'Environmental Radiation, outside the figure', x: 257, y: 132, mark: 'R' },
 ]
 
 export function MissionFigure({ metric, onSelect }: { metric: Variable; onSelect?: (metric: Variable) => void }) {
@@ -20,8 +20,8 @@ export function MissionFigure({ metric, onSelect }: { metric: Variable; onSelect
 
   return (
     <svg className="mission-figure" viewBox="0 0 320 420" aria-labelledby="mission-figure-title mission-figure-description">
-      <title id="mission-figure-title">{onSelect ? 'Figura interactiva de un astronauta' : 'Ilustración de un astronauta'}</title>
-      <desc id="mission-figure-description">{onSelect ? 'Elige una región para consultar su indicador. Los indicadores de la lista ofrecen la misma selección.' : 'Figura de cuerpo completo con traje espacial.'}</desc>
+      <title id="mission-figure-title">{onSelect ? 'Interactive astronaut figure' : 'Astronaut illustration'}</title>
+      <desc id="mission-figure-description">{onSelect ? 'Choose a region to view its indicator. You can make the same selection from the indicator list.' : 'Full-body figure in a spacesuit.'}</desc>
       <defs>
         <pattern id="mission-grid" width="20" height="20" patternUnits="userSpaceOnUse">
           <path d="M20 0H0V20" fill="none" stroke="#193345" strokeWidth="1" />

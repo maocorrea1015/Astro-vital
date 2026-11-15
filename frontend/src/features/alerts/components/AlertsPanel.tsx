@@ -33,11 +33,11 @@ export interface AlertsPanelProps {
 }
 
 const FILTER_OPTIONS: Array<{ value: AlertFilter; label: string }> = [
-  { value: 'all', label: 'Todas' },
-  { value: 'info', label: 'Informativas' },
-  { value: 'warning', label: 'Advertencias' },
-  { value: 'critical', label: 'Críticas' },
-  { value: 'unknown', label: 'Desconocidas' },
+  { value: 'all', label: 'All' },
+  { value: 'info', label: 'Informational' },
+  { value: 'warning', label: 'Warnings' },
+  { value: 'critical', label: 'Critical' },
+  { value: 'unknown', label: 'Unknown' },
 ]
 
 export function AlertsPanel({
@@ -64,10 +64,10 @@ export function AlertsPanel({
       <Stack spacing={2}>
         <Box>
           <Typography id={titleId} variant="h5" component="h2" sx={{ fontWeight: 700 }}>
-            Alertas activas
+            Active Alerts
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Avisos activos del astronauta seleccionado · Procedencia no informada por la API.
+            Active alerts for the selected astronaut. The API did not report their source.
           </Typography>
         </Box>
 
@@ -77,7 +77,7 @@ export function AlertsPanel({
           fullWidth
           size="small"
           disabled={!onFilterChange}
-          aria-label="Filtrar alertas por severidad"
+          aria-label="Filter alerts by severity"
           onChange={(_event, nextFilter: AlertFilter | null) => {
             if (nextFilter) onFilterChange?.(nextFilter)
           }}
@@ -92,8 +92,8 @@ export function AlertsPanel({
 
         {status === 'loading' && (
           <Stack role="status" aria-live="polite" direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-            <CircularProgress size={22} aria-label="Cargando alertas" />
-            <Typography variant="body2">Cargando alertas…</Typography>
+            <CircularProgress size={22} aria-label="Loading alerts" />
+            <Typography variant="body2">Loading alerts…</Typography>
           </Stack>
         )}
 
@@ -104,31 +104,31 @@ export function AlertsPanel({
             action={
               onRetry ? (
                 <Button color="inherit" size="small" onClick={onRetry}>
-                  Reintentar
+                  Retry
                 </Button>
               ) : undefined
             }
           >
             <Typography variant="body2">
-              {cleanErrorMessage || 'No se pudieron cargar las alertas.'}
+              {cleanErrorMessage || 'Could not load alerts.'}
             </Typography>
           </Alert>
         )}
 
         {(status === 'empty' || (status === 'success' && alerts.length === 0)) && (
           <Alert severity="info" variant="outlined">
-            No hay alertas disponibles.
+            No alerts available.
           </Alert>
         )}
 
         {status === 'success' && alerts.length > 0 && filteredAlerts.length === 0 && (
           <Alert severity="info" variant="outlined">
-            No hay alertas para este filtro.
+            No alerts match this filter.
           </Alert>
         )}
 
         {status === 'success' && filteredAlerts.length > 0 && (
-          <Stack component="ul" spacing={2} aria-label="Lista de alertas" sx={{ listStyle: 'none', m: 0, p: 0 }}>
+          <Stack component="ul" spacing={2} aria-label="Alert list" sx={{ listStyle: 'none', m: 0, p: 0 }}>
             {filteredAlerts.map((alert) => (
               <Box component="li" key={alert.id} sx={{ minWidth: 0 }}>
                 <AlertCard {...alert} onAcknowledge={onAcknowledge} />

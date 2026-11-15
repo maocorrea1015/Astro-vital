@@ -23,25 +23,25 @@ export function interpretObservation(answers: AssistanceSession['answers'], read
   const critical = alerts.some((alert) => alert.severity === 'critical')
   const support = observation('Q01') === 'no' && observation('Q02') === 'no'
   const situations = [
-    observation('Q01') === 'no' && { title: 'Falta de respuesta observada', evidence: 'Q01 · No responde', related: 'Frecuencia cardíaca y actividad aportan contexto.' },
-    observation('Q02') === 'no' && { title: 'Respiración anormal reportada', evidence: 'Q02 · No respira o presenta boqueos o jadeos', related: 'Consulta la SpO₂ y su calidad por separado.' },
-    observation('Q06b') === 'yes' && { title: 'Alarma o entorno hostil reportado', evidence: 'Q06b · Sí', related: 'La observación requiere contraste con el estado del entorno.' },
-    observation('Q06a') === 'yes' && { title: 'Contexto EVA o traje espacial', evidence: 'Q06a · Sí', related: 'El contexto operativo no determina la causa del evento.' },
-    observation('Q03') === 'yes' && { title: 'Trauma o sangrado reportado', evidence: 'Q03 · Evidencia visible', related: 'La telemetría no confirma la observación visual.' },
-    observation('Q04') === 'yes' && { title: 'Antecedente de atragantamiento', evidence: 'Q04 · Sí', related: 'El antecedente requiere valoración independiente.' },
-    observation('Q07') === 'yes' && { title: 'Fluidos visibles reportados', evidence: 'Q07 · Sí', related: 'Registro visual, independiente de los sensores.' },
+    observation('Q01') === 'no' && { title: 'Observed unresponsiveness', evidence: 'Q01 · Does not respond', related: 'Heart rate and activity provide context.' },
+    observation('Q02') === 'no' && { title: 'Reported abnormal breathing', evidence: 'Q02 · Not breathing or only gasping', related: 'Review SpO₂ and its quality separately.' },
+    observation('Q06b') === 'yes' && { title: 'Reported alarm or hazardous environment', evidence: 'Q06b · Yes', related: 'Compare this observation with the environmental status.' },
+    observation('Q06a') === 'yes' && { title: 'EVA or spacesuit context', evidence: 'Q06a · Yes', related: 'The mission context does not establish the cause of the event.' },
+    observation('Q03') === 'yes' && { title: 'Reported trauma or bleeding', evidence: 'Q03 · Visible evidence', related: 'Telemetry does not confirm the visual observation.' },
+    observation('Q04') === 'yes' && { title: 'History of choking', evidence: 'Q04 · Yes', related: 'This history requires independent assessment.' },
+    observation('Q07') === 'yes' && { title: 'Reported visible fluids', evidence: 'Q07 · Yes', related: 'Visual observation independent of sensor data.' },
     critical && alerts.some((alert) => alert.variable === 'heart_rate' && alert.severity === 'critical') &&
-      { title: 'Aviso cardiovascular reportado', evidence: 'Flask · Alerta crítica de frecuencia cardíaca', related: 'El aviso no establece la causa ni el estado de conciencia.' },
+      { title: 'Reported cardiovascular alert', evidence: 'Flask · Critical heart rate alert', related: 'The alert does not establish the cause or the level of consciousness.' },
   ].filter((item): item is { title: string; evidence: string; related: string } => item !== false).slice(0, 3)
   const different = observation('Q02') === 'yes' && alerts.some((alert) => alert.variable === 'spo2')
   const failed = readings.filter((reading) => reading.quality === 'sensor_fault').length
   const degraded = readings.filter((reading) => reading.quality === 'degraded').length
 
   return {
-    priority: critical || support ? 'Priorizar contacto' : situations.length ? 'Solicitar valoración' : 'Información insuficiente',
+    priority: critical || support ? 'Prioritize Contact' : situations.length ? 'Request Assessment' : 'Insufficient Information',
     flagged: critical || support,
-    reason: support ? 'Se reportaron falta de respuesta y respiración anormal.' : critical ? 'Flask reportó una alerta crítica.' : situations.length ? 'Hay observaciones concretas para revisar.' : 'El registro disponible no permite orientar la valoración.',
+    reason: support ? 'Unresponsiveness and abnormal breathing were reported.' : critical ? 'Flask reported a critical alert.' : situations.length ? 'Specific observations are available for review.' : 'The available record is insufficient to guide assessment.',
     pending, unknown, situations, failed, degraded, different,
-    action: 'Contacta al CMO o al canal médico según el procedimiento autorizado de la misión. Si la situación preocupa, pide ayuda sin esperar a completar la evaluación.',
+    action: 'Contact the CMO or medical channel according to authorized mission procedure. If you are concerned, request help without waiting to complete the assessment.',
   }
 }

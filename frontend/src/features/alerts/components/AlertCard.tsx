@@ -15,7 +15,7 @@ export interface AlertCardProps {
   severity: AlertSeverity
   /** Código de la variable relacionada (ej. 'heart_rate') */
   variable?: string | null
-  /** Etiqueta legible de la variable (ej. 'Frecuencia cardíaca') */
+  /** Etiqueta legible de la variable (ej. 'Heart Rate') */
   variableLabel?: string | null
   /** Mensaje informativo o clínico autorizado para la interfaz */
   message: string
@@ -41,22 +41,22 @@ const SEVERITY_CONFIG: Record<
   { label: string; color: 'error' | 'warning' | 'info' | 'default'; borderColor: string }
 > = {
   critical: {
-    label: 'Estado crítico',
+    label: 'Critical Status',
     color: 'error',
     borderColor: 'error.main',
   },
   warning: {
-    label: 'Advertencia',
+    label: 'Warning',
     color: 'warning',
     borderColor: 'warning.main',
   },
   info: {
-    label: 'Aviso informativo',
+    label: 'Informational Alert',
     color: 'info',
     borderColor: 'info.main',
   },
   unknown: {
-    label: 'Severidad desconocida',
+    label: 'Unknown Severity',
     color: 'default',
     borderColor: 'divider',
   },
@@ -80,7 +80,7 @@ export function AlertCard({
   const isConfirmed = acknowledged === true
   const canAcknowledge = isPending && typeof onAcknowledge === 'function'
 
-  const displayMessage = message.trim() || 'Aviso de alerta sin descripción'
+  const displayMessage = message.trim() || 'Alert without a description'
 
   const cleanVarLabel = variableLabel?.trim()
   const cleanVar = variable?.trim()
@@ -122,7 +122,7 @@ export function AlertCard({
                   size="small"
                   variant="outlined"
                   color="info"
-                  label="Simulación / Demo"
+                  label="Simulation / Demo"
                   sx={{ fontWeight: 600 }}
                 />
               )}
@@ -136,8 +136,8 @@ export function AlertCard({
                   variant="outlined"
                   label={
                     cleanAcknowledgedAt
-                      ? `Reconocida: ${cleanAcknowledgedAt}`
-                      : 'Reconocida'
+                      ? `Acknowledged: ${cleanAcknowledgedAt}`
+                      : 'Acknowledged'
                   }
                   sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                 />
@@ -146,7 +146,7 @@ export function AlertCard({
                   size="small"
                   color="warning"
                   variant="outlined"
-                  label="Pendiente de acuse"
+                  label="Pending acknowledgment"
                   sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                 />
               ) : (
@@ -154,7 +154,7 @@ export function AlertCard({
                   size="small"
                   color="default"
                   variant="outlined"
-                  label="Estado de acuse no disponible"
+                  label="Acknowledgment status unavailable"
                   sx={{ fontSize: '0.75rem' }}
                 />
               )}
@@ -177,7 +177,7 @@ export function AlertCard({
             </Typography>
             {displayVariable && (
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                Variable vinculada: {displayVariable} {showVariableKey ? `(${cleanVar})` : ''} · Alerta #{id}
+                Related metric: {displayVariable} {showVariableKey ? `(${cleanVar})` : ''} · Alerta #{id}
               </Typography>
             )}
           </Box>
@@ -198,7 +198,7 @@ export function AlertCard({
             <Typography variant="caption" color="text.secondary">
               Registrada:{' '}
               <Box component="span" sx={{ color: 'text.primary' }}>
-                {cleanTime || 'Hora no disponible'}
+                {cleanTime || 'Time unavailable'}
               </Box>
             </Typography>
 
@@ -209,14 +209,14 @@ export function AlertCard({
                 color="primary"
                 disabled={isAcknowledging}
                 onClick={() => onAcknowledge(id)}
-                aria-label={`Reconocer alerta ${id}: ${displayMessage}`}
+                aria-label={`Acknowledge Alert ${id}: ${displayMessage}`}
                 sx={{
                   fontWeight: 600,
                   alignSelf: { xs: 'stretch', sm: 'auto' },
                   color: '#0c1422', // Contraste oscuro contra primary.main (#93d9f4)
                 }}
               >
-                {isAcknowledging ? 'Reconociendo...' : 'Reconocer alerta'}
+                {isAcknowledging ? 'Acknowledging…' : 'Acknowledge Alert'}
               </Button>
             )}
           </Stack>

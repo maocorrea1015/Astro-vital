@@ -28,14 +28,14 @@ export interface TelemetryTrendPoint {
   timeFormatted: string
   /** Estado de calidad del sensor en el instante de la lectura */
   quality: SensorQuality
-  /** Bandera opcional de lectura atrasada u obsoleta en la serie */
+  /** Bandera opcional de lectura atrasada u obsoleta in the series */
   isStale?: boolean
 }
 
 export interface MeasurementTrendProps {
   /** Clave de la variable de telemetría */
   variable: TelemetryVariable
-  /** Nombre amigable de la variable (ej. 'Frecuencia cardíaca') */
+  /** Nombre amigable de la variable (ej. 'Heart Rate') */
   variableLabel?: string | null
   /** Unidad física confirmada (ej. 'bpm', '%', '°C'). Omitir si no está confirmada */
   unit?: string | null
@@ -49,7 +49,7 @@ export interface MeasurementTrendProps {
   onRangeChange?: (range: string) => void
   /** Indica si la consulta o recarga histórica está en progreso */
   isLoading?: boolean
-  /** Mensaje de error al consultar el histórico */
+  /** Mensaje de error al consultar history */
   errorMessage?: string | null
   /** Callback para reintentar la consulta en caso de error */
   onRetry?: () => void
@@ -58,21 +58,21 @@ export interface MeasurementTrendProps {
 }
 
 const DEFAULT_LABELS: Record<string, string> = {
-  heart_rate: 'Frecuencia cardíaca',
-  spo2: 'Saturación de oxígeno (SpO₂)',
-  temperature: 'Temperatura corporal',
-  radiation_cpm: 'Tasa de radiación',
-  activity: 'Nivel de actividad',
+  heart_rate: 'Heart Rate',
+  spo2: 'Oxygen Saturation (SpO₂)',
+  temperature: 'Body Temperature',
+  radiation_cpm: 'Radiation Rate',
+  activity: 'Activity Level',
 }
 
 const QUALITY_LABELS: Record<SensorQuality, string> = {
   ok: 'Nominal',
-  degraded: 'Degradada',
-  sensor_fault: 'Fallo de sensor',
-  unknown: 'No evaluada',
+  degraded: 'Degraded',
+  sensor_fault: 'Sensor Fault',
+  unknown: 'Not assessed',
 }
 
-const formatValue = new Intl.NumberFormat('es-CO', { maximumSignificantDigits: 21 }).format
+const formatValue = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 21 }).format
 
 export function MeasurementTrend({
   variable,
@@ -118,10 +118,10 @@ export function MeasurementTrend({
       >
         <CircularProgress color="primary" sx={{ mb: 2 }} />
         <Typography variant="h6" component="h3" sx={{ fontWeight: 650 }}>
-          Cargando tendencia histórica...
+          Loading historical trend…
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Recuperando serie temporal de {displayLabel}.
+          Loading the time series for {displayLabel}.
         </Typography>
       </Paper>
     )
@@ -136,14 +136,14 @@ export function MeasurementTrend({
         action={
           onRetry ? (
             <Button color="inherit" size="small" onClick={onRetry} sx={{ fontWeight: 600 }}>
-              Reintentar
+              Retry
             </Button>
           ) : undefined
         }
         sx={{ borderRadius: 2 }}
       >
         <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-          Error al cargar histórico de {displayLabel}
+          Could not load history for {displayLabel}
         </Typography>
         <Typography variant="body2" sx={{ mt: 0.5 }}>
           {cleanError}
@@ -165,14 +165,14 @@ export function MeasurementTrend({
         }}
       >
         <Typography variant="h6" component="h3" sx={{ fontWeight: 650 }}>
-          Sin datos históricos
+          No historical data
         </Typography>
         <Typography
           variant="body2"
           color="text.secondary"
           sx={{ mt: 1, maxWidth: '42ch', mx: 'auto' }}
         >
-          No se registran muestras históricas para {displayLabel} en el intervalo consultado.
+          No historical readings were recorded for {displayLabel} in this time range.
         </Typography>
       </Paper>
     )
@@ -327,13 +327,13 @@ export function MeasurementTrend({
   // Formateo para marcas temporales de eje asegurando coherencia con la tabla de datos
   const formatAxisTime = (ts: number): string => {
     const date = new Date(ts * 1000)
-    return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' })
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' })
   }
 
   const getPointTimeLabel = (pt: TelemetryTrendPoint): string => {
     const trimmed = pt.timeFormatted?.trim()
     if (trimmed) return trimmed
-    return formatAxisTime(pt.timestamp)
+    return formatAxisTime(pt.timestamp) + ' UTC'
   }
 
   const isSingleTimestamp = tsSpan <= 0
@@ -357,7 +357,7 @@ export function MeasurementTrend({
         <Box role="status" aria-live="polite">
           <LinearProgress color="primary" sx={{ borderRadius: 1, mb: 1 }} />
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-            Actualizando serie histórica en segundo plano...
+            Refreshing historical readings in the background…
           </Typography>
         </Box>
       )}
@@ -370,19 +370,19 @@ export function MeasurementTrend({
           action={
             onRetry && !isLoading ? (
               <Button color="inherit" size="small" onClick={onRetry} sx={{ fontWeight: 600 }}>
-                Reintentar
+                Retry
               </Button>
             ) : undefined
           }
           sx={{ borderRadius: 2 }}
         >
           <Typography variant="body2">
-            No se pudo actualizar el histórico: {cleanError}. Mostrando datos previamente cargados.
+            Could not refresh history: {cleanError}. Showing previously loaded data.
           </Typography>
         </Alert>
       )}
 
-      {/* Cabecera, Filtros de Rango y Control Conmutable Gráfica / Tabla */}
+      {/* Cabecera, Filtros de Rango y Control Conmutable Gráfica / Table */}
       <Paper
         variant="outlined"
         sx={{
@@ -403,11 +403,11 @@ export function MeasurementTrend({
           >
             <Box>
               <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>
-                Evolución temporal · {displayLabel}
+                Trend Over Time · {displayLabel}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {displayUnit ? `Unidad: ${displayUnit} · ` : ''}
-                {sortedPoints.length} {sortedPoints.length === 1 ? 'muestra' : 'muestras'} en la serie
+                {displayUnit ? `Unit: ${displayUnit} · ` : ''}
+                {sortedPoints.length} {sortedPoints.length === 1 ? 'reading' : 'readings'} in the series · Time axis: UTC
               </Typography>
             </Box>
 
@@ -417,14 +417,14 @@ export function MeasurementTrend({
                   size="small"
                   variant="outlined"
                   color="info"
-                  label="Simulación / Demo"
+                  label="Simulation / Demo"
                   sx={{ fontWeight: 600 }}
                 />
               )}
 
               {/* Selector de Rango Temporal Controlado (únicamente si fue provisto por el consumidor con callback) */}
               {validRanges.length > 0 && onRangeChange && (
-                <Stack direction="row" spacing={0.5} role="group" aria-label="Filtro de ventana temporal">
+                <Stack direction="row" spacing={0.5} role="group" aria-label="Time range filter">
                   {validRanges.map((range) => {
                     const isSelected = range.trim() === selectedRange?.trim()
                     return (
@@ -447,19 +447,19 @@ export function MeasurementTrend({
                 </Stack>
               )}
 
-              {/* Conmutador Accesible entre Gráfico y Tabla */}
+              {/* Conmutador Accesible entre Chart y Table */}
               <ToggleButtonGroup
                 value={viewMode}
                 exclusive
                 onChange={(_, next) => next && setViewMode(next)}
                 size="small"
-                aria-label="Modalidad de visualización de tendencia"
+                aria-label="Trend display mode"
               >
-                <ToggleButton value="chart" aria-label="Visualizar como gráfico temporal">
-                  Gráfico
+                <ToggleButton value="chart" aria-label="Show as a time series chart">
+                  Chart
                 </ToggleButton>
-                <ToggleButton value="table" aria-label="Visualizar como tabla de datos accesible">
-                  Tabla
+                <ToggleButton value="table" aria-label="Show as an accessible data table">
+                  Table
                 </ToggleButton>
               </ToggleButtonGroup>
             </Stack>
@@ -469,18 +469,18 @@ export function MeasurementTrend({
           {validPointCount < 2 && (
             <Alert severity="info" variant="outlined" sx={{ py: 0.5 }}>
               {validPointCount === 0
-                ? 'No hay muestras utilizables para trazar una línea de tendencia.'
-                : 'Solo hay una muestra utilizable. Se necesitan al menos dos para trazar una línea de tendencia.'}
+                ? 'No usable readings to plot a trend line.'
+                : 'Only one usable reading is available. At least two are needed to plot a trend line.'}
             </Alert>
           )}
 
-          {/* Modo Gráfico SVG Nativo */}
+          {/* Modo Chart SVG Nativo */}
           {viewMode === 'chart' && (
             <Box sx={{ width: '100%', overflowX: 'auto', pt: 1 }}>
               <Box
                 component="svg"
                 role="img"
-                aria-label={`Gráfico de tendencia de ${displayLabel}. Total de ${sortedPoints.length} muestras. ${stalePointCount ? `Muestras marcadas como antiguas: ${stalePointCount}.` : ''} Valor mínimo ${minValRaw}${displayUnit ? ` ${displayUnit}` : ''}, valor máximo ${maxValRaw}${displayUnit ? ` ${displayUnit}` : ''}. Marcas temporales de ${getPointTimeLabel(sortedPoints[0])} a ${getPointTimeLabel(sortedPoints[sortedPoints.length - 1])}.`}
+                aria-label={`Trend chart for ${displayLabel}. Total: ${sortedPoints.length} readings. ${stalePointCount ? `Readings marked as stale: ${stalePointCount}.` : ''} Minimum value ${minValRaw}${displayUnit ? ` ${displayUnit}` : ''}, maximum value ${maxValRaw}${displayUnit ? ` ${displayUnit}` : ''}. Timestamps from ${getPointTimeLabel(sortedPoints[0])} to ${getPointTimeLabel(sortedPoints[sortedPoints.length - 1])}.`}
                 viewBox={`0 0 ${svgWidth} ${svgHeight}`}
                 sx={{
                   width: '100%',
@@ -601,7 +601,7 @@ export function MeasurementTrend({
                   }
 
                   if (pt.quality === 'degraded') {
-                    // Calidad degradada: Rombo ámbar de advertencia
+                    // Degraded quality: Rombo ámbar de advertencia
                     return (
                       <polygon
                         key={`point-${idx}`}
@@ -614,7 +614,7 @@ export function MeasurementTrend({
                   }
 
                   if (pt.quality === 'unknown') {
-                    // Calidad no evaluada: Triángulo gris diferenciado
+                    // Quality not assessed: Triángulo gris diferenciado
                     return (
                       <polygon
                         key={`point-${idx}`}
@@ -626,7 +626,7 @@ export function MeasurementTrend({
                     )
                   }
 
-                  // Calidad nominal (ok): Círculo celeste del tema
+                  // Nominal quality (ok): Círculo celeste del tema
                   return (
                     <circle
                       key={`point-${idx}`}
@@ -658,11 +658,11 @@ export function MeasurementTrend({
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                   <Box sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: 'primary.main' }} />
-                  <span>● Nominal (Círculo)</span>
+                  <span>● Nominal (circle)</span>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                   <Box sx={{ width: 9, height: 9, transform: 'rotate(45deg)', bgcolor: 'warning.main' }} />
-                  <span>◆ Degradada (Rombo)</span>
+                  <span>◆ Degraded (diamond)</span>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                   <Box
@@ -675,13 +675,13 @@ export function MeasurementTrend({
                       borderBottomColor: 'text.secondary',
                     }}
                   />
-                  <span>▲ No evaluada (Triángulo)</span>
+                  <span>▲ Not assessed (triangle)</span>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                   <Typography component="span" sx={{ color: 'error.main', fontWeight: 900, lineHeight: 1 }}>
                     ✕
                   </Typography>
-                  <span>✕ Fallo sensor (Cruz, no conectada)</span>
+                  <span>✕ Sensor fault (cross, not connected)</span>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                   <Box
@@ -693,28 +693,28 @@ export function MeasurementTrend({
                       borderRadius: '50%',
                     }}
                   />
-                  <span>Muestra obsoleta (halo discontinuo)</span>
+                  <span>Stale reading (dashed outline)</span>
                 </Box>
               </Stack>
             </Box>
           )}
 
-          {/* Modo Tabla de Datos Accesible */}
+          {/* Modo Table de Datos Accesible */}
           {viewMode === 'table' && (
-            <TableContainer component={Paper} variant="outlined" tabIndex={0} role="region" aria-label="Tabla de mediciones históricas" sx={{ borderRadius: 1.5, maxWidth: '100%', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main' } }}>
-              <Table size="small" aria-label={`Tabla histórica de mediciones de ${displayLabel}`}>
+            <TableContainer component={Paper} variant="outlined" tabIndex={0} role="region" aria-label="Historical readings table" sx={{ borderRadius: 1.5, maxWidth: '100%', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main' } }}>
+              <Table size="small" aria-label={`Historical readings table for ${displayLabel}`}>
                 <caption style={{ captionSide: 'top', textAlign: 'left', padding: '8px 16px', fontWeight: 600 }}>
-                  Datos históricos de {displayLabel}
+                  Historical data for {displayLabel}
                   {displayUnit ? ` (${displayUnit})` : ''}
                   {' · '}
-                  {sortedPoints.length} {sortedPoints.length === 1 ? 'muestra' : 'muestras'}
+                  {sortedPoints.length} {sortedPoints.length === 1 ? 'reading' : 'readings'}
                 </caption>
                 <TableHead>
                   <TableRow>
-                    <TableCell component="th" scope="col">Marca temporal</TableCell>
-                    <TableCell component="th" scope="col" align="right">Valor</TableCell>
-                    <TableCell component="th" scope="col">Calidad</TableCell>
-                    <TableCell component="th" scope="col">Estado de serie</TableCell>
+                    <TableCell component="th" scope="col">Timestamp</TableCell>
+                    <TableCell component="th" scope="col" align="right">Value</TableCell>
+                    <TableCell component="th" scope="col">Quality</TableCell>
+                    <TableCell component="th" scope="col">Series Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -735,37 +735,37 @@ export function MeasurementTrend({
 
                     if (isFault) {
                       seriesStatusParts.push({
-                        text: 'Fallo de sensor reportado · excluida del trazado',
+                        text: 'Reported sensor fault · excluded from the chart',
                         color: 'error.main',
                       })
                       if (hasGap) {
                         seriesStatusParts.push({
-                          text: 'Discontinuidad estimada de visualización tras esta muestra',
+                          text: 'Estimated chart gap after this reading',
                           color: 'warning.main',
                         })
                       }
                     } else {
                       if (prevIsFault) {
                         seriesStatusParts.push({
-                          text: 'Inicio de segmento tras fallo de sensor',
+                          text: 'Segment starts after a sensor fault',
                           color: 'info.main',
                         })
                       }
                       if (prevHasGap) {
                         seriesStatusParts.push({
-                          text: 'Inicio de segmento tras discontinuidad estimada de visualización',
+                          text: 'Segment starts after an estimated chart gap',
                           color: 'warning.main',
                         })
                       }
                       if (hasGap) {
                         seriesStatusParts.push({
-                          text: 'Discontinuidad estimada de visualización tras esta muestra',
+                          text: 'Estimated chart gap after this reading',
                           color: 'warning.main',
                         })
                       }
                       if (seriesStatusParts.length === 0) {
                         seriesStatusParts.push({
-                          text: 'Sin corte en la gráfica',
+                          text: 'No chart gap',
                           color: 'text.secondary',
                         })
                       }
@@ -773,7 +773,7 @@ export function MeasurementTrend({
 
                     if (pt.isStale) {
                       seriesStatusParts.push({
-                        text: 'Muestra obsoleta',
+                        text: 'Stale reading',
                         color: 'text.secondary',
                       })
                     }

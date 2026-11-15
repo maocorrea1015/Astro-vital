@@ -86,7 +86,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
           '&:not(:focus)': { clipPath: 'inset(50%)' },
         }}
       >
-        Saltar al contenido
+        Skip to content
       </Link>
       <Box component="header" sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Container
@@ -96,7 +96,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
           <Typography component="span" sx={{ fontSize: '1.25rem', fontWeight: 750 }}>
             Astro-vital
           </Typography>
-          {observationDemoEnabled && <Typography variant="caption" color="primary.main">Laboratorio local · utiliza solo datos sintéticos</Typography>}
+          {observationDemoEnabled && <Typography variant="caption" color="primary.main">{import.meta.env.DEV ? 'Local Lab' : 'Educational Demo'} · Synthetic Data Only</Typography>}
           <PwaControls />
         </Container>
       </Box>
@@ -110,7 +110,7 @@ export function AppShell({ route, title, children }: AppShellProps) {
           py: 1,
         }}
       >
-        <Box component="nav" aria-label="Navegación principal">
+        <Box component="nav" aria-label="Main navigation">
           <Box
             component="ul"
             sx={{
@@ -157,11 +157,11 @@ export function AppShell({ route, title, children }: AppShellProps) {
           {pageTitle}
           {!browserOnline && (
             <Typography role="status" sx={{ mb: 2 }} color="warning.main">
-              El navegador reporta que está sin conexión.
+              Your browser is offline.
             </Typography>
           )}
           {!browserOnline && needsData ? (
-            <div className="module-workspace"><section className="module-panel"><div className="module-empty"><strong>Datos de misión no disponibles</strong><p>La navegación sigue disponible. Vuelve a conectarte para consultar los datos.</p><Link href={hrefFor('/')}>Volver al centro de control</Link></div></section></div>
+            <div className="module-workspace"><section className="module-panel"><div className="module-empty"><strong>Mission data unavailable</strong><p>You can still navigate. Reconnect to view mission data.</p><Link href={hrefFor('/')}>Back to Mission Control</Link></div></section></div>
           ) : children}
         </Box>
       </Container>

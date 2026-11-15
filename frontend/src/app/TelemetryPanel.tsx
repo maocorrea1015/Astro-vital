@@ -16,13 +16,13 @@ export function TelemetryPanel({ api, selectedId, onSelect, id }: MissionSelecti
   const [metric, setMetric] = useState<Variable>('heart_rate')
   return (
     <div className="module-workspace">
-      <MissionPanel title="Astronautas" icon="◎" className="module-selector-bar">
-        {catalog.result.kind !== 'ready' ? <QueryFeedback result={catalog.result} subject="la tripulación" retry={catalog.retry} />
+      <MissionPanel title="Astronauts" icon="◎" className="module-selector-bar">
+        {catalog.result.kind !== 'ready' ? <QueryFeedback result={catalog.result} subject="crew data" retry={catalog.retry} />
           : catalog.crew.length ? <AstronautSelector horizontal crew={catalog.crew} selectedId={catalog.selected?.id} onSelect={onSelect} />
-          : <MissionEmpty title="No hay astronautas disponibles" />}
+          : <MissionEmpty title="No astronauts available" />}
       </MissionPanel>
       {catalog.selected ? <TelemetryWorkspace key={catalog.selected.id} astronaut={catalog.selected} api={api} metric={metric} onMetric={setMetric} />
-        : <MissionPanel title="Histórico de telemetría" icon="⌁"><MissionEmpty title="Selecciona un astronauta">La gráfica y los indicadores aparecerán aquí.</MissionEmpty></MissionPanel>}
+        : <MissionPanel title="Telemetry History" icon="⌁"><MissionEmpty title="Select an Astronaut">The chart and indicators will appear here.</MissionEmpty></MissionPanel>}
     </div>
   )
 }
@@ -36,30 +36,30 @@ function TelemetryWorkspace({ astronaut, api, metric, onMetric }: { astronaut: A
   const reading = status?.readings.find((item) => item.variable === metric)
   return (
     <div className="module-columns monitor-layout">
-      <MissionPanel title="Astronauta seleccionado" icon="◉" className="module-monitor-profile">
+      <MissionPanel title="Selected Astronaut" icon="◉" className="module-monitor-profile">
         <MissionIdentity astronaut={astronaut} status={status} />
-        {detail.result.kind !== 'ready' && <QueryFeedback result={detail.result} subject="el estado del astronauta" retry={detail.retry} />}
-        <h3 className="module-subtitle">Última muestra</h3>
+        {detail.result.kind !== 'ready' && <QueryFeedback result={detail.result} subject="astronaut status" retry={detail.retry} />}
+        <h3 className="module-subtitle">Latest Reading</h3>
         <div className="module-current">
           <span className="module-icon" aria-hidden="true">{metricMarks[metric]}</span>
-          <div><strong>{variables[metric]}</strong><small>{reading ? metricQuality[reading.quality] : 'Sin lectura'}</small></div>
+          <div><strong>{variables[metric]}</strong><small>{reading ? metricQuality[reading.quality] : 'No reading'}</small></div>
           <b>{reading ? metricNumber.format(reading.value) : '—'} <small>{reading?.unit}</small></b>
         </div>
-        <p className="module-note">Antigüedad sin clasificar. Procedencia no informada por la API.</p>
-        <AssistanceLink id={astronaut.id}>Abrir asistencia</AssistanceLink>
+        <p className="module-note">Reading age unclassified. The API did not report a source.</p>
+        <AssistanceLink id={astronaut.id}>Open Medical Assistance</AssistanceLink>
       </MissionPanel>
-      <MissionPanel title="Evolución temporal" icon="⌁" className="module-history">
-        <div className="module-filters" aria-label="Indicadores de monitoreo">
+      <MissionPanel title="Trend Over Time" icon="⌁" className="module-history">
+        <div className="module-filters" aria-label="Monitoring indicators">
           {missionMetrics.map((variable) => <button type="button" key={variable} aria-pressed={metric === variable} onClick={() => onMetric(variable)}>
             <span aria-hidden="true">{metricMarks[variable]}</span> {variables[variable]}
           </button>)}
         </div>
-        <p className="module-note">Últimas 24 horas · hasta 100 lecturas de todas las variables.</p>
-        {history.result.kind !== 'ready' ? <QueryFeedback result={history.result} subject="las lecturas del astronauta" retry={history.retry} />
-          : rows.length === 0 ? <MissionEmpty title="No hay lecturas disponibles en este intervalo." />
+        <p className="module-note">Last 24 hours · up to 100 readings across all variables.</p>
+        {history.result.kind !== 'ready' ? <QueryFeedback result={history.result} subject="astronaut readings" retry={history.retry} />
+          : rows.length === 0 ? <MissionEmpty title="No readings available in this time range." />
           : <SelectedTrend key={metric} rows={rows} metric={metric} />}
       </MissionPanel>
-      <MissionPanel title="Mapa de telemetría" icon="⌖" className="module-map monitor-map">
+      <MissionPanel title="Telemetry Map" icon="⌖" className="module-map monitor-map">
         <MissionFigure metric={metric} onSelect={onMetric} />
         <div className="module-small-rings"><MetricRing variable={metric} reading={reading} active /></div>
       </MissionPanel>
@@ -70,38 +70,38 @@ function TelemetryWorkspace({ astronaut, api, metric, onMetric }: { astronaut: A
 function SelectedTrend({ rows, metric }: { rows: HistoryResult; metric: Variable }) {
   const trend = toMeasurementTrends(rows.filter((row) => row.variable === metric))[0]
   const [index, setIndex] = useState<number | null>(null)
-  if (!trend) return <MissionEmpty title="Sin histórico para este indicador">Selecciona otra variable para consultar sus lecturas.</MissionEmpty>
+  if (!trend) return <MissionEmpty title="No history for this indicator">Select another metric to view its readings.</MissionEmpty>
 
   const points = trend.points
   const position = index ?? points.length - 1
   const point = points[position]
   const usable = points.filter((sample) => sample.quality !== 'sensor_fault')
   const stats = usable.length > 1 ? [
-    ['Promedio', usable.reduce((sum, sample) => sum + sample.value / usable.length, 0)],
-    ['Mínimo', Math.min(...usable.map((sample) => sample.value))],
-    ['Máximo', Math.max(...usable.map((sample) => sample.value))],
+    ['Average', usable.reduce((sum, sample) => sum + sample.value / usable.length, 0)],
+    ['Minimum', Math.min(...usable.map((sample) => sample.value))],
+    ['Maximum', Math.max(...usable.map((sample) => sample.value))],
   ] as const : []
   const quality = [
     { label: 'Nominal', value: points.filter((sample) => sample.quality === 'ok').length, color: 'ok' },
-    { label: 'Degradada', value: points.filter((sample) => sample.quality === 'degraded').length, color: 'degraded' },
-    { label: 'Fallo de sensor', value: points.filter((sample) => sample.quality === 'sensor_fault').length, color: 'sensor_fault' },
+    { label: 'Degraded', value: points.filter((sample) => sample.quality === 'degraded').length, color: 'degraded' },
+    { label: 'Sensor Fault', value: points.filter((sample) => sample.quality === 'sensor_fault').length, color: 'sensor_fault' },
   ]
 
   return (
     <>
       <div className="module-trend"><MeasurementTrend {...trend} /></div>
       <div className="module-sample">
-        <button type="button" disabled={position === 0} onClick={() => setIndex(position - 1)} aria-label="Muestra anterior">←</button>
-        <span aria-live="polite"><strong>{metricNumber.format(point.value)} {trend.unit}</strong> · Muestra {position + 1} de {points.length}<small>{point.timeFormatted} · {point.quality === 'unknown' ? 'No evaluada' : metricQuality[point.quality]}</small></span>
-        <button type="button" disabled={position === points.length - 1} onClick={() => setIndex(position + 1)} aria-label="Muestra siguiente">→</button>
+        <button type="button" disabled={position === 0} onClick={() => setIndex(position - 1)} aria-label="Previous Reading">←</button>
+        <span aria-live="polite"><strong>{metricNumber.format(point.value)} {trend.unit}</strong> · Reading {position + 1} of {points.length}<small>{point.timeFormatted} · {point.quality === 'unknown' ? 'Not assessed' : metricQuality[point.quality]}</small></span>
+        <button type="button" disabled={position === points.length - 1} onClick={() => setIndex(position + 1)} aria-label="Next Reading">→</button>
       </div>
       <div className="module-chart-summary">
         <dl className="module-facts">
-          <div><dt>Muestras</dt><dd>{points.length}</dd></div>
+          <div><dt>Readings</dt><dd>{points.length}</dd></div>
           {stats.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{summaryNumber.format(value)} {trend.unit}</dd></div>)}
         </dl>
-        {stats.length === 0 && <small>Se necesitan dos muestras utilizables para comparar valores.</small>}
-        <div className="module-quality" aria-label="Distribución por calidad de esta variable">
+        {stats.length === 0 && <small>At least two usable readings are needed to compare values.</small>}
+        <div className="module-quality" aria-label="Reading quality distribution for this metric">
           {quality.map(({ label, color, value }) => <div key={label}><span>{label}</span><meter className={color} min={0} max={points.length} value={value} aria-label={label} /><b>{value}</b></div>)}
         </div>
       </div>

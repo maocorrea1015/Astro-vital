@@ -24,16 +24,16 @@ export function AstronautPage({ id, api }: { id: string; api: CrewApi }) {
             measurements={result.data.readings.map(toMeasurementIndicator)}
           />
           {result.data.readings.length > 0 && (
-            <Typography color="text.secondary">Antigüedad sin clasificar. Procedencia no informada por la API.</Typography>
+            <Typography color="text.secondary">Reading age unclassified. The API did not report a source.</Typography>
           )}
         </>
       ) : (
         <>
-          <QueryFeedback result={result} subject="el estado del astronauta" retry={retry} />
-          <Typography color="text.secondary">Conexión del nodo desconocida.</Typography>
+          <QueryFeedback result={result} subject="astronaut status" retry={retry} />
+          <Typography color="text.secondary">Node connection unknown.</Typography>
         </>
       )}
-      <Link href={hrefFor('/tripulacion')}>Volver a tripulación</Link>
+      <Link href={hrefFor('/tripulacion')}>Back to Crew</Link>
     </Stack>
   )
 }

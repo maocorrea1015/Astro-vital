@@ -19,7 +19,7 @@ self.addEventListener('install', (event) => {
     const files = await Promise.all([...staticUrls].map(async (url) => {
       const response = await fetch(url, { credentials: 'omit', redirect: 'error', cache: 'reload' })
       if (!response.ok || !staticType(url, response) || /\b(?:private|no-store)\b/i.test(response.headers.get('cache-control') ?? '')) {
-        throw new Error('Recurso público no disponible para el shell.')
+        throw new Error('Public asset unavailable for the app shell.')
       }
       return [url, response]
     }))

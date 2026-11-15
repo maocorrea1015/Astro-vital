@@ -4,19 +4,20 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { App } from './app/App'
+import { authorizeDeployedDemo } from './app/observationEnvironment'
 import { theme } from './app/theme'
 
 const root = document.getElementById('root')
 
 if (!root) {
-  throw new Error('Falta el contenedor raíz de Astro-vital.')
+  throw new Error('Astro-vital root container is missing.')
 }
 
-createRoot(root).render(
+void authorizeDeployedDemo().then((authorized) => createRoot(root).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App />
+      {authorized ? <App /> : <main><h1>Demo unavailable</h1><p>Could not verify session access.</p></main>}
     </ThemeProvider>
   </StrictMode>,
-)
+))

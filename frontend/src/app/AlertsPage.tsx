@@ -8,27 +8,27 @@ import { MissionFigure } from './MissionFigure'
 import { AstronautSelector, MetricRing, metricNumber, MissionEmpty, MissionPanel, missionSeverity, severityOrder, useMissionCrew, useMissionStatus, type MissionSelection } from './MissionModules'
 import { assistancePathFor, hrefFor } from './navigation'
 import { observationDemoEnabled } from './observationEnvironment'
-import { displayTime, toActiveAlert, variables } from './telemetryPresentation'
+import { astronautLabel, displayTime, toActiveAlert, variables } from './telemetryPresentation'
 
-const MedicalLibrary = import.meta.env.DEV
+const MedicalLibrary = import.meta.env.DEV || import.meta.env.MODE === 'educational-demo'
   ? lazy(() => import('./ObservationDocument').then((module) => ({ default: module.MedicalLibrary })))
   : null
 
 type Filter = 'all' | Alert['severity']
 const severities = ['critical', 'warning', 'info'] as const
-const filterLabels = { all: 'Todas', critical: 'Críticas', warning: 'Advertencias', info: 'Informativas' } as const
+const filterLabels = { all: 'All', critical: 'Critical', warning: 'Warnings', info: 'Informational' } as const
 
 export function AlertsPage({ api, selectedId, onSelect, id }: MissionSelection & { id: string | null }) {
   const catalog = useMissionCrew(api, id ?? selectedId)
   return (
     <div className="module-workspace">
-      <MissionPanel title="Astronautas" icon="◎" className="module-selector-bar">
-        {catalog.result.kind !== 'ready' ? <QueryFeedback result={catalog.result} subject="la tripulación" retry={catalog.retry} />
+      <MissionPanel title="Astronauts" icon="◎" className="module-selector-bar">
+        {catalog.result.kind !== 'ready' ? <QueryFeedback result={catalog.result} subject="crew data" retry={catalog.retry} />
           : catalog.crew.length ? <AstronautSelector horizontal crew={catalog.crew} selectedId={catalog.selected?.id} onSelect={onSelect} />
-          : <MissionEmpty title="No hay astronautas disponibles" />}
+          : <MissionEmpty title="No astronauts available" />}
       </MissionPanel>
       {catalog.selected ? <AstronautAlerts key={catalog.selected.id} api={api} astronaut={catalog.selected} />
-        : <MissionPanel title="Alertas activas" icon="△"><MissionEmpty title="Selecciona un astronauta">Los avisos activos de esa selección aparecerán aquí.</MissionEmpty></MissionPanel>}
+        : <MissionPanel title="Active Alerts" icon="△"><MissionEmpty title="Select an Astronaut">Active alerts for that astronaut will appear here.</MissionEmpty></MissionPanel>}
     </div>
   )
 }
@@ -39,8 +39,8 @@ function AstronautAlerts({ api, astronaut }: { api: CrewApi; astronaut: Astronau
   const [id, setId] = useState<number | null>(null)
   if (query.result.kind !== 'ready') return (
     <div className="module-columns alerts-layout">
-      <MissionPanel title="Alertas activas" icon="△"><QueryFeedback result={query.result} subject="las alertas activas" retry={query.retry} /></MissionPanel>
-      <MissionPanel title="Detalle del aviso" icon="⌖"><MissionEmpty title="Detalle no disponible">El estado solo aparece al obtener la colección de alertas.</MissionEmpty></MissionPanel>
+      <MissionPanel title="Active Alerts" icon="△"><QueryFeedback result={query.result} subject="active alerts" retry={query.retry} /></MissionPanel>
+      <MissionPanel title="Alert Details" icon="⌖"><MissionEmpty title="Details unavailable">Status becomes available when the alert list loads.</MissionEmpty></MissionPanel>
     </div>
   )
 
@@ -51,35 +51,35 @@ function AstronautAlerts({ api, astronaut }: { api: CrewApi; astronaut: Astronau
   const counts = severities.map((severity) => ({ severity, count: alerts.filter((item) => item.severity === severity).length }))
   return (
     <>
-      <div className="module-alert-summary" aria-label="Alertas activas del astronauta seleccionado">
+      <div className="module-alert-summary" aria-label="Active alerts for the selected astronaut">
         {counts.map(({ severity, count }) => <button key={severity} type="button" className={severity} aria-pressed={filter === severity} disabled={count === 0} onClick={() => setFilter(filter === severity ? 'all' : severity)}>
           <span aria-hidden="true">{severity === 'info' ? 'ⓘ' : '△'}</span><span>{filterLabels[severity]}<strong>{count}</strong></span>
         </button>)}
-        <button type="button" aria-pressed={filter === 'all'} onClick={() => setFilter('all')}><span aria-hidden="true">◇</span><span>Total activas<strong>{alerts.length}</strong></span></button>
+        <button type="button" aria-pressed={filter === 'all'} onClick={() => setFilter('all')}><span aria-hidden="true">◇</span><span>Total Active<strong>{alerts.length}</strong></span></button>
       </div>
       <div className="module-columns alerts-layout">
-        <MissionPanel title="Alertas activas" icon="△" action={<small>{astronaut.name || astronaut.id} · {filtered.length} visibles</small>}>
-          <p className="module-note">Avisos activos del astronauta seleccionado · Procedencia no informada por la API.</p>
-          {alerts.length === 0 ? <MissionEmpty title="No hay alertas disponibles." icon="◇">El servidor no reporta avisos activos para esta selección.</MissionEmpty> :
+        <MissionPanel title="Active Alerts" icon="△" action={<small>{astronautLabel(astronaut)} · {filtered.length} shown</small>}>
+          <p className="module-note">Active alerts for the selected astronaut. The API did not report their source.</p>
+          {alerts.length === 0 ? <MissionEmpty title="No alerts available." icon="◇">The server reports no active alerts for this selection.</MissionEmpty> :
             <>
-              <div className="module-filters" aria-label="Filtrar por severidad">
+              <div className="module-filters" aria-label="Filter by severity">
                 {(['all', ...severities] as const).filter((value) => value === 'all' || alerts.some((item) => item.severity === value)).map((value) =>
                   <button type="button" key={value} aria-pressed={filter === value} onClick={() => setFilter(value)}>{filterLabels[value]}</button>)}
               </div>
-              <ul className="module-alert-list" aria-label="Lista de alertas">
+              <ul className="module-alert-list" aria-label="Alert list">
                 {filtered.map((item) => <li key={item.id}>
                   <button type="button" className={item.severity} aria-pressed={active?.id === item.id} onClick={() => setId(item.id)}>
                     <span className="module-icon" aria-hidden="true">{item.severity === 'info' ? 'ⓘ' : '△'}</span>
-                    <span><strong>Aviso para revisión · {variables[item.variable]}</strong><small>{astronaut.name || astronaut.id} · {displayTime(item.measuredAtMs)}</small></span>
+                    <span><strong>Alert for Review · {variables[item.variable]}</strong><small>{astronautLabel(astronaut)} · {displayTime(item.measuredAtMs)}</small></span>
                     <span className="module-severity">{missionSeverity[item.severity]}</span>
                   </button>
                 </li>)}
               </ul>
             </>}
         </MissionPanel>
-        <MissionPanel title="Detalle del aviso" icon="⌖">
+        <MissionPanel title="Alert Details" icon="⌖">
           {active ? <AlertDetail key={active.id} alert={active} status={status} />
-            : <MissionEmpty title="No hay un aviso seleccionado" />}
+            : <MissionEmpty title="No alert selected" />}
         </MissionPanel>
       </div>
     </>
@@ -93,20 +93,20 @@ function AlertDetail({ alert, status }: { alert: Alert; status: Awaited<ReturnTy
       <AlertCard {...toActiveAlert(alert)} />
       <div className="module-alert-context">
         <div>
-          <h3 className="module-subtitle">Última muestra disponible</h3>
+          <h3 className="module-subtitle">Latest Available Reading</h3>
           <MetricRing variable={metric} reading={status.readings.find((item) => item.variable === metric)} active />
-          <p className="module-note">La lectura actual puede corresponder a un momento distinto al aviso.</p>
+          <p className="module-note">The latest reading may have been recorded at a different time than the alert.</p>
         </div>
         <div className="module-map alert-map"><MissionFigure metric={metric} onSelect={setMetric} /></div>
       </div>
       {observationDemoEnabled && MedicalLibrary && (
         <div className="observation-alert-actions">
-          <p className="module-note">Valor del aviso #{alert.id}: {metricNumber.format(alert.value)} · <time dateTime={new Date(alert.measuredAtMs).toISOString()}>{displayTime(alert.measuredAtMs)}</time></p>
-          <Suspense fallback={<span role="status">Cargando fichas…</span>}><MedicalLibrary variable={alert.variable} /></Suspense>
-          <a className="module-action primary" href={hrefFor(assistancePathFor(status.id, alert.id))}>Iniciar asistencia</a>
+          <p className="module-note">Alert value #{alert.id}: {metricNumber.format(alert.value)} · <time dateTime={new Date(alert.measuredAtMs).toISOString()}>{displayTime(alert.measuredAtMs)}</time></p>
+          <Suspense fallback={<span role="status">Loading briefs…</span>}><MedicalLibrary variable={alert.variable} /></Suspense>
+          <a className="module-action primary" href={hrefFor(assistancePathFor(status.id, alert.id))}>Start Medical Assistance</a>
         </div>
       )}
-      <p className="module-notice">Guía clínica pendiente de validación médica.</p>
+      <p className="module-notice">Clinical guidance is pending medical review.</p>
     </>
   )
 }

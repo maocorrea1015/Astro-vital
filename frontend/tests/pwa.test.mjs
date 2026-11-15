@@ -67,6 +67,6 @@ test('la instalación rechaza respuestas privadas antes de guardar el shell', as
   }).get('install')
   let completion
   handle({ waitUntil: (value) => { completion = value } })
-  await assert.rejects(completion, /Recurso público no disponible/)
+  await assert.rejects(completion, /Public asset unavailable/)
   assert.equal(opened, false)
 })

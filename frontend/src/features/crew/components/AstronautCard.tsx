@@ -36,15 +36,15 @@ const GENERAL_STATUS_CONFIG: Record<
     color: 'default',
   },
   warning: {
-    label: 'Advertencia',
+    label: 'Warning',
     color: 'warning',
   },
   critical: {
-    label: 'Crítico',
+    label: 'Critical',
     color: 'error',
   },
   unknown: {
-    label: 'No disponible',
+    label: 'Unavailable',
     color: 'default',
   },
 }
@@ -54,17 +54,17 @@ const CONNECTION_STATUS_CONFIG: Record<
   { label: string; color: 'success' | 'default'; symbol: string }
 > = {
   online: {
-    label: 'Nodo en línea',
+    label: 'Node Online',
     color: 'success',
     symbol: '●',
   },
   offline: {
-    label: 'Nodo sin conexión',
+    label: 'Node Offline',
     color: 'default',
     symbol: '○',
   },
   unknown: {
-    label: 'Conexión desconocida',
+    label: 'Unknown connection status',
     color: 'default',
     symbol: '?',
   },
@@ -127,7 +127,7 @@ export function AstronautCard({
           <Chip
             size="small"
             color={generalCfg.color}
-            label={'Estado reportado: ' + generalCfg.label}
+            label={'Reported Status: ' + generalCfg.label}
             sx={statusChipStyle}
           />
         </Stack>
@@ -135,11 +135,11 @@ export function AstronautCard({
         {/* Información de Último Contacto */}
         <Box sx={{ pt: 0.5 }}>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
-            Último contacto:{' '}
+            Last Contact:{' '}
             <Box component="span" sx={{ color: 'text.primary', fontWeight: 500 }}>
               {lastContactFormatted && lastContactFormatted.trim().length > 0
                 ? lastContactFormatted
-                : 'Sin registro de contacto'}
+                : 'No contact recorded'}
             </Box>
           </Typography>
         </Box>
@@ -185,7 +185,7 @@ export function AstronautCard({
       {isInteractive ? (
         <CardActionArea
           onClick={() => onSelect(id)}
-          aria-label={`Seleccionar a ${displayName}, identificador ${id}. ${connectionCfg.label}. Estado reportado: ${generalCfg.label}`}
+          aria-label={`Select ${displayName}, identificador ${id}. ${connectionCfg.label}. Reported Status: ${generalCfg.label}`}
           sx={{
             textAlign: 'left',
             '&.Mui-focusVisible': { outlineOffset: -3 },
