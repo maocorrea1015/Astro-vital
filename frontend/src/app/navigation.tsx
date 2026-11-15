@@ -4,6 +4,8 @@ import { isAstronautId } from '../services/api/validators'
 
 export const pageHeadingId = 'page-heading'
 
+export const alertsPath = '/alertas'
+
 export const assistancePath = '/asistencia'
 
 export const monitoringPath = '/monitoreo'
@@ -12,7 +14,7 @@ export const sections = [
   { path: '/', label: 'Inicio' },
   { path: '/tripulacion', label: 'Tripulación' },
   { path: monitoringPath, label: 'Monitoreo' },
-  { path: '/alertas', label: 'Alertas' },
+  { path: alertsPath, label: 'Alertas' },
   { path: assistancePath, label: 'Asistencia' },
 ] as const
 

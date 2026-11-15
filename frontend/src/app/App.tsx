@@ -4,13 +4,14 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import { createAstronautApi } from '../services/api/astronauts'
+import { AlertsPage } from './AlertsPage'
 import { AssistancePage } from './AssistancePage'
 import { AstronautPage } from './AstronautPage'
 import { CrewPage } from './CrewPage'
 import type { CrewApi } from './crewQuery'
 import { AppShell } from './AppShell'
 import { TelemetryPanel } from './TelemetryPanel'
-import { assistancePath, astronautDetailPath, hrefFor, monitoringPath, readAssistanceId, readDetailId, readMonitoringId, useRoute } from './navigation'
+import { alertsPath, assistancePath, astronautDetailPath, hrefFor, monitoringPath, readAssistanceId, readDetailId, readMonitoringId, useRoute } from './navigation'
 
 const views: Record<string, { title: string; description: string } | undefined> = {
   '/': {
@@ -20,10 +21,6 @@ const views: Record<string, { title: string; description: string } | undefined> 
   [astronautDetailPath]: {
     title: 'Detalle de astronauta',
     description: 'La selección de integrantes y sus datos se incorporarán con la integración de tripulación.',
-  },
-  '/alertas': {
-    title: 'Alertas',
-    description: 'Aquí podrás consultar los avisos recibidos y su estado.',
   },
 }
 
@@ -55,6 +52,15 @@ export function App({ crewApi = defaultCrewApi }: { crewApi?: CrewApi }) {
     return (
       <AppShell route={route} title="Monitoreo">
         <TelemetryPanel api={crewApi} id={monitoringId} />
+      </AppShell>
+    )
+  }
+
+
+  if (route === alertsPath) {
+    return (
+      <AppShell route={route} title="Alertas">
+        <AlertsPage api={crewApi} />
       </AppShell>
     )
   }
