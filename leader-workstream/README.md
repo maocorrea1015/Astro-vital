@@ -1,5 +1,8 @@
 # Plan del frontend líder
 
+[![NASA Space Apps Challenge](https://img.shields.io/badge/NASA_Space_Apps-Challenge_2026-blue.svg)](https://www.spaceappschallenge.org/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../LICENSE)
+
 Astro-vital presenta telemetría de astronautas en una PWA de escritorio, adaptable y accesible. El líder construye la aplicación, coordina con Mauricio el acceso a datos y monta los componentes que entrega el junior.
 
 1. Empieza con el [prompt de contextualización](prompts/01-contextualization.md), de solo lectura, en `feature/frontend-foundation`.

@@ -1,9 +1,10 @@
 # PROYECTO ASTRA-VITAL
 ## Advanced Space Telemetry, Risk Assessment and Vital Intelligence System
 
-[![NASA Space Apps Challenge](https://img.shields.io/badge/NASA_Space_Apps-Challenge_2024-blue.svg)](https://www.spaceappschallenge.org/)
+[![NASA Space Apps Challenge](https://img.shields.io/badge/NASA_Space_Apps-Challenge_2026-blue.svg)](https://www.spaceappschallenge.org/)
 [![Hardware](https://img.shields.io/badge/Microcontroller-ESP32_DevKit_V1-red.svg)](https://www.espressif.com/)
 [![Firmware](https://img.shields.io/badge/Firmware-Arduino_C%2B%2B-00979D.svg)](ASTRA-VITAL.ino)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../LICENSE)
 [![Status](https://img.shields.io/badge/Status-Prototyped_%26_Bench_Tested-success.svg)](#8-plano-08--diagrama-de-expansión-y-matriz-de-validación)
 
 > Sistema integrado de telemetría biomédica, monitoreo ambiental de habitáculos espaciales y soporte a la decisión clínica para astronautas en entornos aislados, confinados y extremos (**ICE - Isolated, Confined, and Extreme Environments**). Desarrollado en el marco del **NASA Space Apps Challenge** bajo el reto de salud y soporte vital para misiones de exploración tripulada (Artemis / Marte).
@@ -404,4 +405,8 @@ El módulo ESP32 se conecta de forma directa con la factoría de servicios del b
 ---
 
 ### Licencia y Reconocimientos
-Proyecto desarrollado para el **NASA Space Apps Challenge**. Prototipo de ingeniería sujeto a fines de investigación biomédica aeroespacial, soporte vital avanzado y educación tecnológica abierta.
+Proyecto desarrollado para el **NASA Space Apps Challenge 2026** por el **Equipo Ada Lovelace**.
+
+- **Código fuente del firmware:** Licenciado bajo la [Licencia Apache 2.0](../LICENSE), aprobada por la OSI (*Open Source Initiative*).
+- **Planos, esquemas y documentación técnica:** Licenciados bajo la Licencia Internacional [Creative Commons Atribución 4.0 (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.es).
+- Para más información y términos legales completos, consulte el archivo [LICENSE](../LICENSE).

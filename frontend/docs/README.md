@@ -1,5 +1,8 @@
 # Guía técnica del frontend
 
+[![NASA Space Apps Challenge](https://img.shields.io/badge/NASA_Space_Apps-Challenge_2026-blue.svg)](https://www.spaceappschallenge.org/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../../LICENSE)
+
 La PWA de Astro-vital permitirá consultar tripulación, mediciones y alertas con fecha, calidad y procedencia. El prototipo prioriza escritorio y admite pantallas pequeñas. El alcance y los estados de aprobación viven en [MVP_SCOPE.md](../../docs/MVP_SCOPE.md). La revisión actual contiene documentación y directorios de organización.
 
 ## Stack confirmado
